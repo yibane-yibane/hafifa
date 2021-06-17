@@ -1,8 +1,8 @@
 from sqlalchemy import Column, Float, Boolean, Integer
-from hafifa import db
+from hafifa.data_base_wrap.base import Base
 
 
-class Metadata(db.Model):
+class Metadata(Base):
     __tablename__ = 'metadata'
     id = Column(Integer, primary_key=True)
     tag = Column(Boolean)

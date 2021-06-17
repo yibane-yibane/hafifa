@@ -1,5 +1,6 @@
-from hafifa import init_app
+from hafifa.data_base_wrap.SQLAlchemyWrapper import SQLAlchemyWrapper
 
 
 if __name__ == '__main__':
-    app = init_app()
+    db = SQLAlchemyWrapper()
+    db.create_tables()
