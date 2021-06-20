@@ -7,4 +7,4 @@ class Video(Base):
     id = Column(String, primary_key=True)
     observation_name = Column(String)
     os_path = Column(String)
-    frames_number = Column(Integer)
+    number_of_frames = Column(Integer)
