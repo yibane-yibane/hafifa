@@ -1,8 +1,9 @@
 from sqlalchemy import Column, String, Integer
-from hafifa.data_base.base import db
+from hafifa.data_base.DB import DB
+from hafifa.singleton import Singleton
 
 
-class Video(db.Model):
+class Video(DB.db.Model):
     __tablename__ = 'videos'
     id = Column(String, primary_key=True)
     observation_name = Column(String)

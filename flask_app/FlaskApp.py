@@ -1,9 +1,10 @@
 from flask import Flask
+from hafifa.singleton import Singleton
 from hafifa.flask_app.FlaskConfig import FlaskConfig
 from hafifa.data_base.SQLAlchemy import SQLAlchemyHandler
 
 
-class FlaskAppHandler:
+class FlaskAppHandler(metaclass=Singleton):
     def __init__(self):
         self.app = Flask(__name__, instance_relative_config=False)
         self.app.config.from_object(FlaskConfig)

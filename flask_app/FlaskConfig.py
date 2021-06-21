@@ -1,7 +1,8 @@
 import os
+from hafifa.singleton import Singleton
 
 
-class FlaskConfig:
+class FlaskConfig(metaclass=Singleton):
     SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_DATABASE_URI",
                                         "postgresql://postgres:test123@localhost:5432/postgres")
     SQLALCHEMY_ECHO = os.getenv("SQLALCHEMY_ECHO", False)
