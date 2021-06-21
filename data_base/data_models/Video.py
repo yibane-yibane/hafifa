@@ -1,5 +1,5 @@
 from sqlalchemy import Column, String, Integer
-from hafifa.data_base_wrap.base import db
+from hafifa.data_base.base import db
 
 
 class Video(db.Model):

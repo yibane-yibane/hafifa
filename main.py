@@ -1,6 +1,6 @@
-from hafifa.data_base_wrap.SQLAlchemyWrapper import SQLAlchemyWrapper
+from hafifa.flask_app.FlaskApp import FlaskAppHandler
 
 
 if __name__ == '__main__':
-    db = SQLAlchemyWrapper()
-    db.create_tables()
+    app = FlaskAppHandler()
+    app.init_database()

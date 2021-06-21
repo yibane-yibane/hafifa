@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Float, Boolean, Integer
-from hafifa.data_base_wrap.base import db
+from hafifa.data_base.base import db
 
 
 class Metadata(db.Model):

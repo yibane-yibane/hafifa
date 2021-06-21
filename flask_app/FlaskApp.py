@@ -1,14 +1,15 @@
 from flask import Flask
-from hafifa.app_wrap.FlaskConfig import FlaskConfig
-from hafifa.data_base_wrap.SQLAlchemyWrapper import SQLAlchemyWrapper
+from hafifa.flask_app.FlaskConfig import FlaskConfig
+from hafifa.data_base.SQLAlchemy import SQLAlchemyHandler
 
 
-class FlaskAppWrapper:
+class FlaskAppHandler:
     def __init__(self):
         self.app = Flask(__name__, instance_relative_config=False)
         self.app.config.from_object(FlaskConfig)
-        self.db = SQLAlchemyWrapper(self.app)
+        self.db = SQLAlchemyHandler(self.app)
 
     def init_database(self):
         with self.app.app_context():
+            self.db.clear_data_models()
             self.db.create_data_models()
