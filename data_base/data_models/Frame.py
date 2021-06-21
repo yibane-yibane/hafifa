@@ -1,8 +1,8 @@
 from sqlalchemy import Column, String, Integer, ForeignKey
-from hafifa.data_base_wrap.base import Base
+from hafifa.data_base_wrap.base import db
 
 
-class Frame(Base):
+class Frame(db.Model):
     __tablename__ = 'frames'
     id = Column(Integer, primary_key=True)
     video_id = Column(String, ForeignKey('videos.id'))
