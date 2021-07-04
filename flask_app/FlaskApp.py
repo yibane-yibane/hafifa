@@ -29,8 +29,12 @@ class FlaskAppHandler(metaclass=Singleton):
             self.db.create_data_models()
 
     def run(self):
+        self.app.add_url_rule('/get_videos_pathes', view_func=self.get_videos_pathes, methods=['GET'])
         self.app.add_url_rule('/handle_video', view_func=self.handle_video, methods=['POST'])
         self.app.run()
+
+    def get_videos_pathes(self):
+        return dict(self.db.get_table_row(dm.Video, 'os_path'))
 
     async def handle_video(self):
         path = request.json['video_path']

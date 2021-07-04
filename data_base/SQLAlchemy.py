@@ -30,3 +30,6 @@ class SQLAlchemyHandler(metaclass=Singleton):
 
     def get_by_id(self, table, instance_id):
         return table.query.filter(table.id == instance_id).first()
+
+    def get_table_row(self, table, row: str):
+        return self.db.session.query(table.id, getattr(table, row))
