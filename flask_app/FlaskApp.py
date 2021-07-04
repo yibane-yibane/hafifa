@@ -88,17 +88,22 @@ class FlaskAppHandler(metaclass=Singleton):
             fov, azi, lev = utils.generate_metadata(image)
             tag = utils.is_frame_tagged(image)
 
-            metadata_id = '-'.join(map(str, [fov, azi, lev, tag]))
+            metadata_id = self.get_metadata_id(fov, azi, lev, tag)
             frames[index].set_metadata_id(metadata_id)
 
-            if not self.is_there_metadata_id_in_database_or_list(metadata_list, metadata_id):
+            if not self.is_metadata_already_exists(metadata_list, metadata_id):
                 metadata_list.append(dm.Metadata(metadata_id, fov, azi, lev, tag))
 
         return metadata_list
 
-    def is_there_metadata_id_in_database_or_list(self, metadatas: list, metadata_id: str):
-        return [metadata for metadata in metadatas if metadata.id == metadata_id] or \
-               self.db.get_by_id(dm.Metadata, metadata_id)
+    def get_metadata_id(self, fov, azi, lev, tag):
+        return '-'.join(map(str, [fov, azi, lev, tag]))
+
+    def is_metadata_already_exists(self, metadatas: list, metadata_id: str):
+        return not self.get_metadata_by_id(metadatas, metadata_id) and not self.db.get_by_id(dm.Metadata, metadata_id)
+
+    def get_metadata_by_id(self, metadatas: list, metadata_id: str):
+        return [metadata for metadata in metadatas if metadata.id == metadata_id]
 
     def insert_to_database(self, video: dm.Video, metadatas: list, frames: list):
         with self.app.app_context():
