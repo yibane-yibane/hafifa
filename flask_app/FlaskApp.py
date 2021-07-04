@@ -61,6 +61,7 @@ class FlaskAppHandler(metaclass=Singleton):
         Logger.logger.info(f'finish upload images for path: {path}')
         Logger.logger.info(f'Finish insert video and frames to database, video path: {path}')
         Logger.logger.info(f'Finish handle path: {path}')
+        return "dsa"
 
     async def upload_video(self, path: str, video_file_name: str):
         with open(path, 'rb') as file:
@@ -100,7 +101,7 @@ class FlaskAppHandler(metaclass=Singleton):
         return '-'.join(map(str, [fov, azi, lev, tag]))
 
     def is_metadata_already_exists(self, metadatas: list, metadata_id: str):
-        return not self.get_metadata_by_id(metadatas, metadata_id) and not self.db.get_by_id(dm.Metadata, metadata_id)
+        return self.get_metadata_by_id(metadatas, metadata_id) or self.db.get_by_id(dm.Metadata, metadata_id)
 
     def get_metadata_by_id(self, metadatas: list, metadata_id: str):
         return [metadata for metadata in metadatas if metadata.id == metadata_id]
