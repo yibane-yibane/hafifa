@@ -1,12 +1,18 @@
-from sqlalchemy import Column, Float, Boolean, Integer
+from sqlalchemy import Column, Float, Boolean, String
 from hafifa.data_base.DB import DB
-from hafifa.singleton import Singleton
 
 
 class Metadata(DB.db.Model):
     __tablename__ = 'metadata'
-    id = Column(Integer, primary_key=True)
-    tag = Column(Boolean)
+    id = Column(String, primary_key=True)
     fov = Column(Float)
     azimuth = Column(Float)
     elevation = Column(Float)
+    tag = Column(Boolean)
+
+    def __init__(self, metadata_id, fov, azimuth, elevation, tag):
+        self.id = metadata_id
+        self.tag = tag
+        self.fov = fov
+        self.azimuth = azimuth
+        self.elevation = elevation
