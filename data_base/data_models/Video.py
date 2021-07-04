@@ -9,7 +9,7 @@ class Video(DB.db.Model):
     os_path = Column(String)
     number_of_frames = Column(Integer)
 
-    def __init__(self, video_id, observation_name, os_path, number_of_frames):
+    def __init__(self, video_id: str, observation_name: str, os_path: str, number_of_frames: int):
         self.id = video_id
         self.observation_name = observation_name
         self.os_path = os_path

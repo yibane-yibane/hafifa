@@ -1,9 +1,9 @@
 import base64
+import random
 import cv2
-from io import BytesIO
 import numpy as np
 from PIL import Image
-import random
+from io import BytesIO
 
 
 def extract_video_to_frames(path):

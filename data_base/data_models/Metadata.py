@@ -10,7 +10,7 @@ class Metadata(DB.db.Model):
     elevation = Column(Float)
     tag = Column(Boolean)
 
-    def __init__(self, metadata_id, fov, azimuth, elevation, tag):
+    def __init__(self, metadata_id: str, fov: float, azimuth: float, elevation: float, tag: bool):
         self.id = metadata_id
         self.tag = tag
         self.fov = fov

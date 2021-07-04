@@ -1,5 +1,3 @@
-import os
-
 from hafifa.flask_app.FlaskApp import FlaskAppHandler
 
 

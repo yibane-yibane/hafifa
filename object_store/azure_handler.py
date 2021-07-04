@@ -1,8 +1,7 @@
-import sys
-
-from azure.core.exceptions import ResourceExistsError
-from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
 from .AzureConfig import AzureConfig
+from hafifa.logger.logger import Logger
+from azure.storage.blob import BlobServiceClient
+from azure.core.exceptions import ResourceExistsError
 
 
 class AzureBlobHandler:
@@ -14,9 +13,9 @@ class AzureBlobHandler:
         try:
             self.blob_service_client.create_container(self.container_name)
         except ResourceExistsError:
-            # self.blob_service_client.delete_container(self.container_name)
+            Logger.logger.info("The container already exists")
             pass
 
-    def upload_file(self, file_name, file_data, path):
+    def upload_file(self, file_name: str, file_data, path: str):
         blob_client = self.blob_service_client.get_blob_client(container=self.container_name, blob=path+file_name)
         blob_client.upload_blob(file_data, overwrite=True)
