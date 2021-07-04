@@ -29,9 +29,15 @@ class FlaskAppHandler(metaclass=Singleton):
             self.db.create_data_models()
 
     def run(self):
+        self.app.add_url_rule('/video_path_by_id', view_func=self.get_video_path_by_id, methods=['POST'])
         self.app.add_url_rule('/get_videos_pathes', view_func=self.get_videos_pathes, methods=['GET'])
         self.app.add_url_rule('/handle_video', view_func=self.handle_video, methods=['POST'])
         self.app.run()
+
+    def get_video_path_by_id(self):
+        video_id = request.json['video_id']
+        videos_dict = dict(self.db.get_table_row(dm.Video, 'os_path'))
+        return videos_dict[video_id]
 
     def get_videos_pathes(self):
         return dict(self.db.get_table_row(dm.Video, 'os_path'))
@@ -67,6 +73,7 @@ class FlaskAppHandler(metaclass=Singleton):
         Logger.logger.info(f'finish to upload images for path: {path}')
         Logger.logger.info(f'Finish to insert video and frames to database, video path: {path}')
         Logger.logger.info(f'Finish to handle path: {path}')
+
         return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
 
     async def upload_video(self, path: str, video_file_name: str):
