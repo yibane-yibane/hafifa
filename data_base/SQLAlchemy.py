@@ -18,6 +18,12 @@ class SQLAlchemyHandler(metaclass=Singleton):
         self.db.session.add(table_instance)
         self.db.session.commit()
 
+    def merge_many(self, table_instances: list):
+        for table_instance in table_instances:
+            self.db.session.merge(table_instance)
+
+        self.db.session.commit()
+
     def insert_many(self, table_instances: list):
         self.db.session.add_all(table_instances)
         self.db.session.commit()

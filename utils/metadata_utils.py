@@ -56,3 +56,16 @@ def generate_metadata(frame):
     elevation = random.choice([11.862, 69.42, 78.4])
 
     return fov, azimuth, elevation
+
+
+def generate_metadata_id(fov: float, azi: float, lev: float, tag: bool):
+    return '-'.join(map(str, [fov, azi, lev, tag]))
+
+
+def get_metadata_by_id(metadatas: list, metadata_id: str):
+    return [metadata for metadata in metadatas if metadata.id == metadata_id]
+
+
+# def is_metadata_already_exists(self, metadatas: list, metadata_id: str):
+#     return self.get_metadata_by_id(metadatas, metadata_id) or self.db.get_by_id(dm.Metadata, metadata_id)
+
