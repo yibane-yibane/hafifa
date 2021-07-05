@@ -42,36 +42,52 @@ class FlaskAppHandler(metaclass=Singleton):
         """
         path = request.json['video_path']
         Logger.logger.info(f'Start to handle path: {path}')
-        video_id = str(uuid4())
         video_file_name = os.path.basename(path)
-        thread_pool = ThreadPoolExecutor(max_workers=5)
-        observation = self._get_observation_name_from_path(path)
 
         Logger.logger.info(f'Start to upload video for path: {path}')
-        upload_video_task = asyncio.create_task(self.upload_binary_file_to_azure(path, video_file_name, 'videos/'))
 
         image_list = metadata_utils.extract_video_to_frames(path)
 
         Logger.logger.info(f'Start to upload images for path: {path}')
+        thread_pool = ThreadPoolExecutor(max_workers=5)
         self.upload_images_to_azure(image_list, video_file_name, thread_pool)
 
-        data_models_frame_list = frame_utils.create_frames(image_list, video_id, video_file_name)
+        Logger.logger.info(f'Start create and insert video frames and metadata to database, video path: {path}')
+        self.create_and_insert_to_database_video_metadata_frame_models(path, image_list, video_file_name, thread_pool)
 
-        video = data_models.Video(str(video_id), observation, video_file_name, len(data_models_frame_list))
-
-        metadata_list = self._get_metadata_list_and_set_metadata_for_each_frame(data_models_frame_list, image_list)
-
-        Logger.logger.info(f'Start insert video and frames to database, video path: {path}')
-        thread_pool.submit(self._insert_to_database, video, metadata_list, data_models_frame_list)
-
+        await asyncio.create_task(self.upload_binary_file_to_azure(path, video_file_name, 'videos/'))
         thread_pool.shutdown(wait=True)
-        await upload_video_task
 
         Logger.logger.info(f'finish to upload video for path: {path}')
         Logger.logger.info(f'finish to upload images for path: {path}')
         Logger.logger.info(f'Finish to insert video and frames to database, video path: {path}')
         Logger.logger.info(f'Finish to handle path: {path}')
+
         return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
+
+    def create_and_insert_to_database_video_metadata_frame_models(self, path, image_list, video_file_name, thread_pool):
+        video_model, metadata_model_list, frame_model_list = self.create_video_metadata_frame_models(path,
+                                                                                                     image_list,
+                                                                                                     video_file_name)
+        thread_pool.submit(self._insert_to_database, video_model, metadata_model_list, frame_model_list)
+
+    def create_video_metadata_frame_models(self, path, image_list, video_file_name):
+        """
+        Create video metadata and frame db models.
+        :param path: Video file path.
+        :param image_list: Image list.
+        :param video_file_name: Video file name
+        :return: video_model, metadata_model_list, frame_model_list.
+        """
+        video_id = str(uuid4())
+        frame_model_list = frame_utils.create_frames(len(image_list), video_id, video_file_name)
+
+        observation = self._get_observation_name_from_path(path)
+        video_model = data_models.Video(str(video_id), observation, video_file_name, len(frame_model_list))
+
+        metadata_model_list = self._get_metadata_list_and_set_metadata_for_each_frame(frame_model_list, image_list)
+
+        return video_model, metadata_model_list, frame_model_list
 
     async def upload_binary_file_to_azure(self, path: str, video_file_name: str, azure_path: str):
         """
@@ -83,7 +99,7 @@ class FlaskAppHandler(metaclass=Singleton):
         with open(path, 'rb') as file:
             self.azure_handler.upload_file(video_file_name, file, azure_path)
 
-    def upload_images_to_azure(self, images: list, video_file_name: str, thread_pool):
+    def upload_images_to_azure(self, images: list, video_file_name: str, thread_pool: ThreadPoolExecutor):
         """
         Upload images to azure in background with thread pool
         :param images: List of images
@@ -129,14 +145,14 @@ class FlaskAppHandler(metaclass=Singleton):
 
         return metadata_list
 
-    def _insert_to_database(self, video: data_models.Video, metadatas: list, frames: list):
+    def _insert_to_database(self, video: data_models.Video, metadata: list, frames: list):
         """
         Insert thr params to database.
         :param video: Video.
-        :param metadatas: metadata list.
+        :param metadata: metadata list.
         :param frames: frame list.
         """
         with self.app.app_context():
             self.db.insert_one(video)
-            self.db.merge_many(metadatas)
+            self.db.merge_many(metadata)
             self.db.insert_many(frames)
