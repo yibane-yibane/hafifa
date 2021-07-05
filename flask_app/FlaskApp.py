@@ -6,7 +6,7 @@ import hafifa.utils.metadata_utils as metadata_utils
 import hafifa.utils.frame_utils as frame_utils
 import hafifa.data_base.data_models as data_models
 from uuid import uuid4
-from flask import Flask, request
+from flask import Flask, request, Response
 from hafifa.singleton import Singleton
 from hafifa.logger.logger import Logger
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
@@ -39,8 +39,8 @@ class FlaskAppHandler(metaclass=Singleton):
 
     def get_video_path_by_id(self):
         video_id = request.json['video_id']
-        videos_dict = dict(self.db.get_table_row(dm.Video, 'os_path'))
-        return videos_dict[video_id]
+        videos_dict = dict(self.db.get_table_row(data_models.Video, 'os_path'))
+        return json.dumps({'path': videos_dict[video_id]}), 200, {'ContentType': 'application/json'}
 
     def get_videos_pathes(self):
         return dict(self.db.get_table_row(data_models.Video, 'os_path'))
