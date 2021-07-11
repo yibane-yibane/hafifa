@@ -1,6 +1,6 @@
 from hafifa.data_base.DB import DB
 from hafifa.singleton import Singleton
-import hafifa.data_base.data_models as dm
+import hafifa.data_base.data_models as data_models
 
 
 class SQLAlchemyHandler(metaclass=Singleton):
@@ -18,15 +18,19 @@ class SQLAlchemyHandler(metaclass=Singleton):
         self.db.session.add(table_instance)
         self.db.session.commit()
 
-    def merge_many(self, table_instances: list):
-        for table_instance in table_instances:
-            self.db.session.merge(table_instance)
-
-        self.db.session.commit()
-
     def insert_many(self, table_instances: list):
         self.db.session.add_all(table_instances)
         self.db.session.commit()
 
-    def get_by_id(self, table, instance_id):
-        return table.query.filter(table.id == instance_id).first()
+    def get_metadata(self, fov: float, azimuth: float, elevation: float, tag: bool):
+        return self.db.session.query(data_models.Metadata) \
+            .filter(data_models.Metadata.fov == fov) \
+            .filter(data_models.Metadata.azimuth == azimuth) \
+            .filter(data_models.Metadata.elevation == elevation) \
+            .filter(data_models.Metadata.tag == tag).first()
+
+    def get_video(self, observation_name: str, os_path: str, number_of_frames: int):
+        return self.db.session.query(data_models.Video) \
+            .filter(data_models.Video.observation_name == observation_name) \
+            .filter(data_models.Video.os_path == os_path) \
+            .filter(data_models.Video.number_of_frames == number_of_frames).first()

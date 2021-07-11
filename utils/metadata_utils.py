@@ -4,9 +4,10 @@ import cv2
 import numpy as np
 from PIL import Image
 from io import BytesIO
+from hafifa.data_base import data_models
 
 
-def extract_video_to_frames(path):
+def extract_video_to_frames(path: str):
     vidcap = cv2.VideoCapture(path)
     success, image = vidcap.read()
     frames = []
@@ -15,13 +16,10 @@ def extract_video_to_frames(path):
         frames.append(image)  # save frame as JPEG file
         success, image = vidcap.read()
 
-    vidcap.release()
-    cv2.destroyAllWindows()
-
     return frames
 
 
-def is_frame_tagged(frame):
+def is_frame_tagged(frame: list):
     """
     Check if frame is tagged.
 
@@ -43,7 +41,7 @@ def is_frame_tagged(frame):
     return len(matches[0]) != 0
 
 
-def generate_metadata(frame):
+def generate_metadata(frame: list):
     """
     Generates metadata for a given frame.
 
@@ -56,16 +54,3 @@ def generate_metadata(frame):
     elevation = random.choice([11.862, 69.42, 78.4])
 
     return fov, azimuth, elevation
-
-
-def generate_metadata_id(fov: float, azi: float, lev: float, tag: bool):
-    return '-'.join(map(str, [fov, azi, lev, tag]))
-
-
-def get_metadata_by_id(metadatas: list, metadata_id: str):
-    return [metadata for metadata in metadatas if metadata.id == metadata_id]
-
-
-# def is_metadata_already_exists(self, metadatas: list, metadata_id: str):
-#     return self.get_metadata_by_id(metadatas, metadata_id) or self.db.get_by_id(dm.Metadata, metadata_id)
-

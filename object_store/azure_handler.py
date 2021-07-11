@@ -16,6 +16,6 @@ class AzureBlobHandler:
             Logger.logger.info("The container already exists")
             pass
 
-    def upload_file(self, file_name: str, file_data, path: str):
+    def upload_file(self, file_name: str, file_data: bytes, path: str):
         blob_client = self.blob_service_client.get_blob_client(container=self.container_name, blob=path+file_name)
         blob_client.upload_blob(file_data, overwrite=True)
