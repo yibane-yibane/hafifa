@@ -1,5 +1,18 @@
 import os
+import cv2
 import hafifa.data_base.data_models as data_models
+
+
+def extract_video_to_frames(path: str):
+    vidcap = cv2.VideoCapture(path)
+    success, image = vidcap.read()
+    frames = []
+
+    while success:
+        frames.append(image)  # save frame as JPEG file
+        success, image = vidcap.read()
+
+    return frames
 
 
 def create_frame_models(number_of_frames: int, video_id: str, video_name: str):

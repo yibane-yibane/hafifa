@@ -4,19 +4,6 @@ import cv2
 import numpy as np
 from PIL import Image
 from io import BytesIO
-from hafifa.data_base import data_models
-
-
-def extract_video_to_frames(path: str):
-    vidcap = cv2.VideoCapture(path)
-    success, image = vidcap.read()
-    frames = []
-
-    while success:
-        frames.append(image)  # save frame as JPEG file
-        success, image = vidcap.read()
-
-    return frames
 
 
 def is_frame_tagged(frame: list):

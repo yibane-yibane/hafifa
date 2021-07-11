@@ -11,7 +11,7 @@ from hafifa.logger.logger import Logger
 from concurrent.futures import ThreadPoolExecutor
 from hafifa.flask_app.FlaskConfig import FlaskConfig
 from hafifa.data_base.SQLAlchemy import SQLAlchemyHandler
-from hafifa.object_store.azure_handler import AzureBlobHandler
+from hafifa.object_storage.azure_container_handler import AzureBlobContainerHandler
 
 
 class FlaskAppHandler(metaclass=Singleton):
@@ -19,7 +19,7 @@ class FlaskAppHandler(metaclass=Singleton):
         self.app = Flask(__name__, instance_relative_config=False)
         self.app.config.from_object(FlaskConfig)
         self.db = SQLAlchemyHandler(self.app)
-        self.azure_handler = AzureBlobHandler()
+        self.azure_handler = AzureBlobContainerHandler()
         self.azure_handler.create_container()
 
     def init_database(self):
@@ -43,7 +43,7 @@ class FlaskAppHandler(metaclass=Singleton):
         Logger.logger.info(f'Start to handle path: {path}')
 
         video_file_name = os.path.basename(path)
-        image_list = metadata_utils.extract_video_to_frames(path)
+        image_list = frame_utils.extract_video_to_frames(path)
         thread_pool = ThreadPoolExecutor(max_workers=3)
 
         Logger.logger.info(f'Start to upload video for path: {path}')
