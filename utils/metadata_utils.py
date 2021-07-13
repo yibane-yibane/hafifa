@@ -41,3 +41,15 @@ def generate_metadata(frame: list):
     elevation = random.choice([11.862, 69.42, 78.4])
 
     return fov, azimuth, elevation
+
+
+def get_metadata_arguments(image: list):
+    """
+    Extract fov, azi, elev, tag parameters from image.
+    :param image: Image.
+    :return: fov, azi, elev, tag
+    """
+    fov, azi, elev = generate_metadata(image)
+    tag = is_frame_tagged(image)
+
+    return fov, azi, elev, tag
