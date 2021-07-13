@@ -27,18 +27,17 @@ def create_and_insert_to_database_video_metadata_frame_models(path: str,
 
         frame_model_list = frame_utils.create_frame_models(len(image_list), video_model.id, video_file_name)
 
-        create_and_insert_metadata_and_set_metadata_id_to_frames(frame_model_list, image_list)
+        create_and_insert_metadata_and_set_metadata_id_to_frames(frame_model_list, image_list, db)
 
         db.insert_many(frame_model_list)
 
 
-def create_and_insert_metadata_and_set_metadata_id_to_frames(frames: list, images: list):
+def create_and_insert_metadata_and_set_metadata_id_to_frames(frames: list, images: list, db):
     """
     Create and insert metadata and set metadata id to frames.
     :param frames: Frame list.
     :param images: Image list.
     """
-    db = SQLAlchemyHandler()
     for index, image in enumerate(images):
         fov, azi, elev, tag = metadata_utils.get_metadata_arguments(image)
         metadata = db.get_metadata(fov, azi, elev, tag)
