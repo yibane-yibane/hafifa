@@ -1,5 +1,4 @@
 import os
-
 from hafifa.data_base import data_models
 from hafifa.data_base.SQLAlchemy import SQLAlchemyHandler
 from hafifa.utils import frame_utils, metadata_utils

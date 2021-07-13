@@ -1,8 +1,6 @@
 import json
 import os
-import cv2
 import asyncio
-import hafifa.utils.metadata_utils as metadata_utils
 import hafifa.utils.frame_utils as frame_utils
 import hafifa.data_base.data_models as data_models
 import hafifa.utils.insert_data_models_db_utils as video_handle
