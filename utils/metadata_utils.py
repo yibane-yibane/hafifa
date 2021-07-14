@@ -1,4 +1,5 @@
 import base64
+import os
 import random
 import cv2
 import numpy as np
@@ -6,7 +7,7 @@ from PIL import Image
 from io import BytesIO
 
 
-def is_frame_tagged(frame: list):
+def is_frame_tagged(frame):
     """
     Check if frame is tagged.
 
@@ -28,7 +29,7 @@ def is_frame_tagged(frame: list):
     return len(matches[0]) != 0
 
 
-def generate_metadata(frame: list):
+def generate_metadata(frame):
     """
     Generates metadata for a given frame.
 
@@ -43,7 +44,7 @@ def generate_metadata(frame: list):
     return fov, azimuth, elevation
 
 
-def get_metadata_arguments(image: list):
+def get_metadata_arguments(image):
     """
     Extract fov, azi, elev, tag parameters from image.
     :param image: Image.
@@ -53,3 +54,12 @@ def get_metadata_arguments(image: list):
     tag = is_frame_tagged(image)
 
     return fov, azi, elev, tag
+
+
+def get_observation_name_from_path(path: str):
+    """
+    Extract observation name from path.
+    :param path: Video file path.
+    :return: Observation name.
+    """
+    return os.path.basename(path).split('_')[0]

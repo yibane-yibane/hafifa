@@ -1,3 +1,5 @@
+from sqlalchemy import exists
+
 from hafifa.data_base.DB import DB
 from hafifa.singleton import Singleton
 import hafifa.data_base.data_models as data_models
@@ -14,7 +16,7 @@ class SQLAlchemyHandler(metaclass=Singleton):
     def clear_data_models(self):
         self.db.drop_all()
 
-    def insert_one(self, table_instance):
+    def insert_one(self, table_instance: DB.db.Model):
         self.db.session.add(table_instance)
         self.db.session.commit()
 
@@ -29,8 +31,16 @@ class SQLAlchemyHandler(metaclass=Singleton):
             .filter(data_models.Metadata.elevation == elevation) \
             .filter(data_models.Metadata.tag == tag).first()
 
-    def get_video(self, observation_name: str, os_path: str, number_of_frames: int):
-        return self.db.session.query(data_models.Video) \
-            .filter(data_models.Video.observation_name == observation_name) \
-            .filter(data_models.Video.os_path == os_path) \
-            .filter(data_models.Video.number_of_frames == number_of_frames).first()
+    def is_data_model_exists(self, data_model: DB.db.Model, where_section: dict):
+        """
+        Check if data model instance exists in db.
+        :param data_model: Data model/table the instance belong.
+        :param where_section: The query where section.
+        :return: True/False.
+        """
+        exists_query = exists(data_model)
+
+        for field, value in where_section.items():
+            exists_query = exists_query.where(field == value)
+
+        return self.db.session.query(exists_query).scalar()
