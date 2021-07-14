@@ -49,7 +49,7 @@ class FlaskAppHandler(metaclass=Singleton):
                                                             os.path.join(video_file_name, 'videos/')))
 
         Logger.logger.info(f'Start to upload images for path: {local_video_path}')
-        self.azure_container_handler.upload_images(image_list, video_file_name, thread_pool)
+        self.azure_container_handler.upload_images(image_list, os.path.join('frames', video_file_name), thread_pool)
 
         Logger.logger.info('Start create and insert video frames and metadata to database, video path: '
                            f'{local_video_path}')

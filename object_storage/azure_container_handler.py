@@ -33,7 +33,7 @@ class AzureBlobContainerHandler:
         for index, image in enumerate(images):
             _, img_encode = cv2.imencode('.jpg', image)
             img_bytes = img_encode.tobytes()
-            thread_pool.submit(self.upload_blob, img_bytes, azure_path)
+            thread_pool.submit(self.upload_blob, img_bytes, os.path.join(azure_path, f'frame{index}.jpg'))
 
     def upload_blob(self, data: bytes, azure_path: str):
         """
@@ -51,13 +51,5 @@ class AzureBlobContainerHandler:
         :param azure_path: Azure path to upload.
         """
         with open(local_file_path, 'rb') as file:
-            await self.upload_blob_async(file, azure_path)
-
-    async def upload_blob_async(self, data: bytes, azure_path: str):
-        """
-        Upload a file azure.
-        :param data: File data to upload.
-        :param azure_path: Azure path.
-        """
-        blob_client = self.blob_container_client_async.get_blob_client(blob=azure_path)
-        await blob_client.upload_blob(data, blob_type="BlockBlob", overwrite=True)
+            blob_client = self.blob_container_client_async.get_blob_client(blob=azure_path)
+            await blob_client.upload_blob(file, blob_type="BlockBlob", overwrite=True)
