@@ -16,6 +16,10 @@ class SQLAlchemyHandler(metaclass=Singleton):
     def clear_data_models(self):
         self.db.drop_all()
 
+    def init_database(self):
+        self.clear_data_models()
+        self.create_data_models()
+
     def insert_one(self, table_instance: DB.db.Model):
         self.db.session.add(table_instance)
         self.db.session.commit()
@@ -30,6 +34,14 @@ class SQLAlchemyHandler(metaclass=Singleton):
             .filter(data_models.Metadata.azimuth == azimuth) \
             .filter(data_models.Metadata.elevation == elevation) \
             .filter(data_models.Metadata.tag == tag).first()
+
+    def get_one(self, data_model, attributes_filters: dict):
+        query = self.db.session.query(data_model)
+
+        for model_and_attr, value in attributes_filters.items():
+            query = query.filter(model_and_attr == value)
+
+        return query.first()
 
     def is_data_model_exists(self, data_model: DB.db.Model, where_section: dict):
         """

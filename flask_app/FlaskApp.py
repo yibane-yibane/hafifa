@@ -9,7 +9,7 @@ from concurrent.futures import ThreadPoolExecutor
 from hafifa.flask_app.FlaskConfig import FlaskConfig
 from hafifa.data_base.SQLAlchemy import SQLAlchemyHandler
 from hafifa.object_storage.azure_container_handler import AzureBlobContainerHandler
-from hafifa.data_base.DataModelTransactionHandler import DataModelsTransactionsHandler
+import hafifa.data_base.DataModelTransactionHandler as DataModelTransactions
 
 
 class FlaskAppHandler(metaclass=Singleton):
@@ -53,7 +53,7 @@ class FlaskAppHandler(metaclass=Singleton):
 
         Logger.logger.info('Start create and insert video frames and metadata to database, video path: '
                            f'{local_video_path}')
-        DataModelsTransactionsHandler().create_and_insert_to_database_video_metadata_frame_models(local_video_path,
+        DataModelTransactions.create_and_insert_to_database_video_metadata_frame_models(local_video_path,
                                                                                                   image_list,
                                                                                                   video_file_name)
 
