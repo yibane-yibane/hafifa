@@ -2,6 +2,7 @@ import json
 import os
 import asyncio
 import hafifa.utils.frame_utils as frame_utils
+import hafifa.data_base.DataModelTransactions as DataModelTransactions
 from flask import Flask, request
 from hafifa.singleton import Singleton
 from hafifa.logger.logger import Logger
@@ -9,7 +10,6 @@ from concurrent.futures import ThreadPoolExecutor
 from hafifa.flask_app.FlaskConfig import FlaskConfig
 from hafifa.data_base.SQLAlchemy import SQLAlchemyHandler
 from hafifa.object_storage.azure_container_handler import AzureBlobContainerHandler
-import hafifa.data_base.DataModelTransactionHandler as DataModelTransactions
 
 
 class FlaskAppHandler(metaclass=Singleton):
@@ -45,9 +45,12 @@ class FlaskAppHandler(metaclass=Singleton):
 
         upload_video_task = asyncio.create_task(
             self.azure_container_handler.upload_binary_file(local_video_path,
-                                                            os.path.join(video_file_name, 'videos/')))
+                                                            os.path.join('videos', video_file_name)))
 
-        self.azure_container_handler.upload_images(image_list, os.path.join('frames', video_file_name), thread_pool)
+        self.azure_container_handler.upload_images(image_list,
+                                                   os.path.join('frames', video_file_name),
+                                                   thread_pool,
+                                                   local_video_path)
 
         DataModelTransactions.create_and_insert_to_database_video_metadata_frame_models(local_video_path,
                                                                                         image_list,
