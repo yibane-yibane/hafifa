@@ -1,11 +1,30 @@
 import os
+import cv2
 import hafifa.data_base.data_models as data_models
-from uuid import uuid4
 
 
-#get int
-def create_frames(number_of_frames: int, video_id: str, video_name: str):
-    return [data_models.Frame(str(uuid4()), video_id, create_frame_os_path(video_name, index), index)
+def extract_video_to_frames(path: str):
+    vidcap = cv2.VideoCapture(path)
+    success, image = vidcap.read()
+    frames = []
+
+    while success:
+        frames.append(image)  # save frame as JPEG file
+        success, image = vidcap.read()
+
+    return frames
+
+
+def create_frame_models(number_of_frames: int, video_id: str, video_name: str):
+    """
+    Create frame models without metadata id.
+    :param number_of_frames: Number of frames.
+    :param video_id: Video id.
+    :param video_name: Video name.
+    :return: Frame instances list.
+    """
+
+    return [data_models.Frame(video_id=video_id, os_path=create_frame_os_path(video_name, index), index=index)
             for index in range(number_of_frames)]
 
 
