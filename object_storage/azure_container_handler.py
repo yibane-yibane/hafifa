@@ -23,17 +23,22 @@ class AzureBlobContainerHandler:
         except ResourceExistsError:
             Logger.logger.info("container already exists")
 
-    def upload_images(self, images: list, azure_path: str, thread_pool: ThreadPoolExecutor):
+    def upload_images(self, images: list, azure_path: str, thread_pool: ThreadPoolExecutor, local_file_path: str):
         """
         Upload images to azure.
         :param images: List of images.
         :param azure_path: Path in azure.
         :param thread_pool: Thread pool.
+        :param local_file_path:
         """
+        Logger.logger.info(f'Start to upload images for path: {local_file_path}')
+
         for index, image in enumerate(images):
             _, img_encode = cv2.imencode('.jpg', image)
             img_bytes = img_encode.tobytes()
             thread_pool.submit(self.upload_blob, img_bytes, os.path.join(azure_path, f'frame{index}.jpg'))
+
+        Logger.logger.info(f'Finish to upload images for path: {local_file_path}')
 
     def upload_blob(self, data: bytes, azure_path: str):
         """
@@ -50,6 +55,9 @@ class AzureBlobContainerHandler:
         :param local_file_path: Local file path.
         :param azure_path: Azure path to upload.
         """
+        Logger.logger.info(f'Start to upload file for path: {local_file_path}')
+
         with open(local_file_path, 'rb') as file:
             blob_client = self.blob_container_client_async.get_blob_client(blob=azure_path)
             await blob_client.upload_blob(file, blob_type="BlockBlob", overwrite=True)
+            Logger.logger.info(f'Finish to upload video for path: {local_file_path}')

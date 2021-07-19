@@ -43,29 +43,19 @@ class FlaskAppHandler(metaclass=Singleton):
         image_list = frame_utils.extract_video_to_frames(local_video_path)
         thread_pool = ThreadPoolExecutor(max_workers=3)
 
-        Logger.logger.info(f'Start to upload video for path: {local_video_path}')
         upload_video_task = asyncio.create_task(
             self.azure_container_handler.upload_binary_file(local_video_path,
                                                             os.path.join(video_file_name, 'videos/')))
 
-        Logger.logger.info(f'Start to upload images for path: {local_video_path}')
         self.azure_container_handler.upload_images(image_list, os.path.join('frames', video_file_name), thread_pool)
 
-        Logger.logger.info('Start create and insert video frames and metadata to database, video path: '
-                           f'{local_video_path}')
         DataModelTransactions.create_and_insert_to_database_video_metadata_frame_models(local_video_path,
-                                                                                                  image_list,
-                                                                                                  video_file_name)
+                                                                                        image_list,
+                                                                                        video_file_name)
 
         await upload_video_task
         thread_pool.shutdown(wait=True)
 
-        self._log_finish_upload_video(local_video_path)
+        Logger.logger.info(f'Finish to handle path: {local_video_path}')
 
         return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
-
-    def _log_finish_upload_video(self, local_video_path):
-        Logger.logger.info(f'Finish to upload video for path: {local_video_path}')
-        Logger.logger.info(f'Finish to upload images for path: {local_video_path}')
-        Logger.logger.info(f'Finish to insert video and frames to database, video path: {local_video_path}')
-        Logger.logger.info(f'Finish to handle path: {local_video_path}')
