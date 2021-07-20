@@ -29,12 +29,12 @@ class FlaskAppHandler(metaclass=Singleton):
             self.db.create_data_models()
 
     def run(self):
-        self.app.add_url_rule('/get_videos_pathes', view_func=self.get_videos_pathes, methods=['GET'])
+        self.app.add_url_rule('/get_videos_path', view_func=self.get_videos_path, methods=['GET'])
         self.app.add_url_rule('/upload_video', view_func=self.upload_video, methods=['POST'])
         self.app.run()
 
-    def get_videos_pathes(self):
-        return dict(self.db.get_table_row(data_models.Video, 'os_path'))
+    def get_videos_path(self):
+        return dict(self.db.get_table_columns(data_models.Video, ['id', 'os_path']))
 
     async def upload_video(self):
         """

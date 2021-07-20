@@ -50,5 +50,9 @@ class SQLAlchemyHandler(metaclass=Singleton):
 
         return self.db.session.query(exists_query).scalar()
 
-    def get_table_row(self, table, row: str):
-        return self.db.session.query(table.id, getattr(table, row))
+    def get_table_columns(self, data_model, select_section):
+        query = self.db.session.query()
+        for select_field in select_section:
+            query = query.add_columns(getattr(data_model, select_field))
+
+        return query.all()
