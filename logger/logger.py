@@ -1,9 +1,8 @@
 import sys
 import logging
-from hafifa.singleton import Singleton
 
 
-class Logger(metaclass=Singleton):
+class Logger:
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
     formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s',

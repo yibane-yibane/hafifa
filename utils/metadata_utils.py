@@ -1,24 +1,10 @@
 import base64
+import os
 import random
 import cv2
 import numpy as np
 from PIL import Image
 from io import BytesIO
-
-
-def extract_video_to_frames(path):
-    vidcap = cv2.VideoCapture(path)
-    success, image = vidcap.read()
-    frames = []
-
-    while success:
-        frames.append(image)  # save frame as JPEG file
-        success, image = vidcap.read()
-
-    vidcap.release()
-    cv2.destroyAllWindows()
-
-    return frames
 
 
 def is_frame_tagged(frame):
@@ -58,14 +44,22 @@ def generate_metadata(frame):
     return fov, azimuth, elevation
 
 
-def generate_metadata_id(fov: float, azi: float, lev: float, tag: bool):
-    return '-'.join(map(str, [fov, azi, lev, tag]))
+def get_metadata_arguments(image):
+    """
+    Extract fov, azi, elev, tag parameters from image.
+    :param image: Image.
+    :return: fov, azi, elev, tag
+    """
+    fov, azi, elev = generate_metadata(image)
+    tag = is_frame_tagged(image)
+
+    return fov, azi, elev, tag
 
 
-def get_metadata_by_id(metadatas: list, metadata_id: str):
-    return [metadata for metadata in metadatas if metadata.id == metadata_id]
-
-
-# def is_metadata_already_exists(self, metadatas: list, metadata_id: str):
-#     return self.get_metadata_by_id(metadatas, metadata_id) or self.db.get_by_id(dm.Metadata, metadata_id)
-
+def get_observation_name_from_path(path: str):
+    """
+    Extract observation name from path.
+    :param path: Video file path.
+    :return: Observation name.
+    """
+    return os.path.basename(path).split('_')[0]
