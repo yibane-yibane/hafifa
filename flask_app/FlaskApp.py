@@ -48,7 +48,7 @@ class FlaskAppHandler(metaclass=Singleton):
         if not os.path.exists(local_path_to_save_video):
             os.makedirs(local_path_to_save_video)
 
-        await self.azure_container_handler.save_file_to_local(video_path, local_path_to_save_video)
+        await self.azure_container_handler.save_file_to_local_path(video_path, local_path_to_save_video)
 
         return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
 
