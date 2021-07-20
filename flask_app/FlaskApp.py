@@ -24,8 +24,7 @@ class FlaskAppHandler(metaclass=Singleton):
         Initiate database clear data models and create them
         """
         with self.app.app_context():
-            self.db.clear_data_models()
-            self.db.create_data_models()
+            self.db.init_database()
 
     def run(self):
         self.app.add_url_rule('/upload_video', view_func=self.upload_video, methods=['POST'])
