@@ -1,3 +1,4 @@
+import os
 from hafifa.data_base import data_models
 from hafifa.data_base.SQLAlchemy import SQLAlchemyHandler
 from hafifa.logger.logger import Logger
@@ -16,15 +17,15 @@ def create_and_insert_to_database_video_metadata_frame_models(path: str,
     db = SQLAlchemyHandler()
     observation = metadata_utils.get_observation_name_from_path(path)
     is_video_exists = db.is_data_model_exists(data_model=data_models.Video,
-                                              where_section={'observation': observation,
-                                                             'video_file_name': video_file_name,
+                                              where_section={'observation_name': observation,
+                                                             'os_path': os.path.join('videos', video_file_name),
                                                              'number_of_frames': len(image_list)})
 
     if not is_video_exists:
         Logger.logger.info('Start create and insert video frames and metadata to database, video path: '
                            f'{path}')
         video_model = data_models.Video(observation_name=observation,
-                                        os_path=video_file_name,
+                                        os_path=os.path.join('videos', video_file_name),
                                         number_of_frames=len(image_list))
 
         db.insert_one(video_model)

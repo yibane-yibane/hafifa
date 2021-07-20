@@ -32,7 +32,7 @@ class SQLAlchemyHandler(metaclass=Singleton):
         query = self.db.session.query(data_model)
 
         for model_and_attr, value in attributes_filters.items():
-            query = query.filter(model_and_attr == value)
+            query = query.filter(data_model.__dict__[model_and_attr] == value)
 
         return query.first()
 
@@ -46,7 +46,7 @@ class SQLAlchemyHandler(metaclass=Singleton):
         exists_query = exists(data_model)
 
         for field, value in where_section.items():
-            exists_query = exists_query.where(field == value)
+            exists_query = exists_query.where(data_model.__dict__[field] == value)
 
         return self.db.session.query(exists_query).scalar()
 
