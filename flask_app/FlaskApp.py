@@ -25,8 +25,7 @@ class FlaskAppHandler(metaclass=Singleton):
         Initiate database clear data models and create them
         """
         with self.app.app_context():
-            self.db.clear_data_models()
-            self.db.create_data_models()
+            self.db.init_database()
 
     def run(self):
         self.app.add_url_rule('/video_path_by_id', view_func=self.get_video_path_by_id, methods=['POST'])
@@ -40,7 +39,10 @@ class FlaskAppHandler(metaclass=Singleton):
         return json.dumps({'path': videos_dict[video_id]}), 200, {'ContentType': 'application/json'}
 
     def get_videos_path(self):
-        return dict(self.db.get_table_columns(data_models.Video, ['id', 'os_path']))
+        videos_path = dict(self.db.get_entities(data_model=data_models.Video,
+                                                select_section=['id', 'os_path'],
+                                                attributes_filters={}))
+        return json.dumps({'videos_path': videos_path}), 200, {'ContentType': 'application/json'}
 
     async def upload_video(self):
         """
