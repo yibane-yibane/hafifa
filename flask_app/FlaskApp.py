@@ -35,7 +35,10 @@ class FlaskAppHandler(metaclass=Singleton):
 
     def get_video_path_by_id(self):
         video_id = request.json['video_id']
-        videos_dict = dict(self.db.get_table_columns(data_models.Video, ['id', 'os_path']))
+        videos_dict = dict(self.db.get_entities(data_model=data_models.Video,
+                                                select_section=['id', 'os_path'],
+                                                attributes_filters={'id': video_id}))
+
         return json.dumps({'path': videos_dict[video_id]}), 200, {'ContentType': 'application/json'}
 
     def get_videos_path(self):
