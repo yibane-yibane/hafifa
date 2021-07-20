@@ -28,18 +28,27 @@ class FlaskAppHandler(metaclass=Singleton):
             self.db.init_database()
 
     def run(self):
+        self.app.add_url_rule('/frames_path_by_videoid', view_func=self.get_frames_path_from_video_id, methods=['POST'])
         self.app.add_url_rule('/video_path_by_id', view_func=self.get_video_path_by_id, methods=['POST'])
         self.app.add_url_rule('/get_videos_path', view_func=self.get_videos_path, methods=['GET'])
         self.app.add_url_rule('/upload_video', view_func=self.upload_video, methods=['POST'])
         self.app.run()
 
+    def get_frames_path_from_video_id(self):
+        video_id = request.json['video_id']
+        videos_dict = dict(self.db.get_entities(data_model=data_models.Frame,
+                                                select_section=['id', 'os_path'],
+                                                attributes_filters={'video_id': video_id}))
+
+        return json.dumps({'path': videos_dict}), 200, {'ContentType': 'application/json'}
+
     def get_video_path_by_id(self):
         video_id = request.json['video_id']
-        videos_dict = dict(self.db.get_entities(data_model=data_models.Video,
-                                                select_section=['id', 'os_path'],
-                                                attributes_filters={'id': video_id}))
+        video_path = self.db.get_entity(data_model=data_models.Video,
+                                        select_section=['os_path'],
+                                        attributes_filters={'id': video_id})[0]
 
-        return json.dumps({'path': videos_dict[video_id]}), 200, {'ContentType': 'application/json'}
+        return json.dumps({'path': video_path}), 200, {'ContentType': 'application/json'}
 
     def get_videos_path(self):
         videos_path = dict(self.db.get_entities(data_model=data_models.Video,
