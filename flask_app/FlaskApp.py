@@ -28,11 +28,23 @@ class FlaskAppHandler(metaclass=Singleton):
             self.db.init_database()
 
     def run(self):
+        self.app.add_url_rule('/frame_path_by_index_and_videoid',
+                              view_func=self.get_frame_path_by_index_and_video_id,
+                              methods=['POST'])
         self.app.add_url_rule('/frames_path_by_videoid', view_func=self.get_frames_path_from_video_id, methods=['POST'])
         self.app.add_url_rule('/video_path_by_id', view_func=self.get_video_path_by_id, methods=['POST'])
         self.app.add_url_rule('/get_videos_path', view_func=self.get_videos_path, methods=['GET'])
         self.app.add_url_rule('/upload_video', view_func=self.upload_video, methods=['POST'])
         self.app.run()
+
+    def get_frame_path_by_index_and_video_id(self):
+        video_id = request.json['video_id']
+        frame_index = request.json['frame_index']
+        videos_dict = dict(self.db.get_entities(data_model=data_models.Frame,
+                                                select_section=['id', 'os_path'],
+                                                attributes_filters={'video_id': video_id, 'index': frame_index}))
+
+        return json.dumps({'path': videos_dict}), 200, {'ContentType': 'application/json'}
 
     def get_frames_path_from_video_id(self):
         video_id = request.json['video_id']
