@@ -34,7 +34,10 @@ class FlaskAppHandler(metaclass=Singleton):
         self.app.run()
 
     def get_videos_path(self):
-        return dict(self.db.get_table_columns(data_models.Video, ['id', 'os_path']))
+        videos_path = dict(self.db.get_entities(data_model=data_models.Video,
+                                                select_section=['id', 'os_path'],
+                                                attributes_filters={}))
+        return json.dumps({'videos_path': videos_path}), 200, {'ContentType': 'application/json'}
 
     async def upload_video(self):
         """
