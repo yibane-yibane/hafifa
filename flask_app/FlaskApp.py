@@ -28,6 +28,7 @@ class FlaskAppHandler(metaclass=Singleton):
             self.db.init_database()
 
     def run(self):
+        self.app.add_url_rule('/download_video', view_func=self.download_video, methods=['POST'])
         self.app.add_url_rule('/frame_path_by_index_and_videoid',
                               view_func=self.get_frame_path_by_index_and_video_id,
                               methods=['POST'])
@@ -36,6 +37,20 @@ class FlaskAppHandler(metaclass=Singleton):
         self.app.add_url_rule('/get_videos_path', view_func=self.get_videos_path, methods=['GET'])
         self.app.add_url_rule('/upload_video', view_func=self.upload_video, methods=['POST'])
         self.app.run()
+
+    async def download_video(self):
+        video_id = request.json['video_id']
+        local_path_to_save_video = request.json['local_path_to_save_video']
+        video_path = self.db.get_entity(data_model=data_models.Video,
+                                        select_section=['os_path'],
+                                        attributes_filters={'id': video_id})[0]
+
+        if not os.path.exists(local_path_to_save_video):
+            os.makedirs(local_path_to_save_video)
+
+        await self.azure_container_handler.save_file_to_local(video_path, local_path_to_save_video)
+
+        return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
 
     def get_frame_path_by_index_and_video_id(self):
         video_id = request.json['video_id']
