@@ -75,13 +75,13 @@ class FlaskAppHandler(metaclass=Singleton):
     def get_frame_path_by_index_and_video_id(self):
         video_id = request.json['video_id']
         frame_index = request.json['frame_index']
-        videos_dict = DataModelTransactions.get_frame_path_by_index_and_video_id(video_id, frame_index)
+        videos_dict = dict(DataModelTransactions.get_frame_path_by_index_and_video_id(video_id, frame_index))
 
         return json.dumps({'path': videos_dict}), 200, {'ContentType': 'application/json'}
 
     def get_frames_path_from_video_id(self):
         video_id = request.json['video_id']
-        videos_dict = DataModelTransactions.get_frames_path_by_video_id_dict(video_id)
+        videos_dict = dict(DataModelTransactions.get_frames_path_by_video_id(video_id))
 
         return json.dumps({'path': videos_dict}), 200, {'ContentType': 'application/json'}
 
@@ -92,7 +92,7 @@ class FlaskAppHandler(metaclass=Singleton):
         return json.dumps({'path': video_path}), 200, {'ContentType': 'application/json'}
 
     def get_videos_path(self):
-        videos_path_dict = DataModelTransactions.get_videos_path_dict()
+        videos_path_dict = dict(DataModelTransactions.get_videos_path())
         return json.dumps({'videos_path': videos_path_dict}), 200, {'ContentType': 'application/json'}
 
     async def upload_video(self):
