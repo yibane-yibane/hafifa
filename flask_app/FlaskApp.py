@@ -9,7 +9,6 @@ from hafifa.logger.logger import Logger
 from hafifa.data_base import data_models
 from concurrent.futures import ThreadPoolExecutor
 from hafifa.flask_app.FlaskConfig import FlaskConfig
-from hafifa.data_base.SQLAlchemy import SQLAlchemyHandler
 from hafifa.object_storage.azure_container_handler import AzureBlobContainerHandler
 
 
@@ -17,15 +16,7 @@ class FlaskAppHandler(metaclass=Singleton):
     def __init__(self):
         self.app = Flask(__name__, instance_relative_config=False)
         self.app.config.from_object(FlaskConfig)
-        self.db = SQLAlchemyHandler(self.app)
         self.azure_container_handler = AzureBlobContainerHandler()
-
-    def init_database(self):
-        """
-        Initiate database clear data models and create them
-        """
-        with self.app.app_context():
-            self.db.init_database()
 
     def run(self):
         self.app.add_url_rule('/frames_path_by_videoid', view_func=self.get_frames_path_from_video_id, methods=['POST'])
@@ -51,10 +42,8 @@ class FlaskAppHandler(metaclass=Singleton):
         return json.dumps({'path': video_path}), 200, {'ContentType': 'application/json'}
 
     def get_videos_path(self):
-        videos_path = dict(self.db.get_entities(data_model=data_models.Video,
-                                                select_section=['id', 'os_path'],
-                                                attributes_filters={}))
-        return json.dumps({'videos_path': videos_path}), 200, {'ContentType': 'application/json'}
+        videos_path_dict = DataModelTransactions.get_videos_path_dict()
+        return json.dumps({'videos_path': videos_path_dict}), 200, {'ContentType': 'application/json'}
 
     async def upload_video(self):
         """
