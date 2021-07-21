@@ -38,27 +38,27 @@ class SQLAlchemyHandler(metaclass=Singleton):
         exists_query = exists(data_model)
 
         for field, value in where_section.items():
-            exists_query = exists_query.where(data_model.__dict__[field] == value)
+            exists_query = exists_query.where(getattr(data_model, field) == value)
 
         return self.db.session.query(exists_query).scalar()
 
-    def get_entities(self, data_model, select_section: list, attributes_filters: dict):
-        query = self._create_query(data_model, select_section, attributes_filters)
+    def get_entities(self, select_section: list, attributes_filters: dict):
+        query = self._create_query(select_section, attributes_filters)
 
         return query.all()
 
-    def get_entity(self, data_model, select_section: list, attributes_filters: dict):
-        query = self._create_query(data_model, select_section, attributes_filters)
+    def get_entity(self, select_section: list, attributes_filters: dict):
+        query = self._create_query(select_section, attributes_filters)
 
         return query.first()
 
-    def _create_query(self, data_model, select_section: list, attributes_filters: dict):
+    def _create_query(self, select_section: list, attributes_filters: dict):
         query = self.db.session.query()
 
         for select_field in select_section:
-            query = query.add_columns(getattr(data_model, select_field))
+            query = query.add_columns(select_field)
 
         for attribute, value in attributes_filters.items():
-            query = query.filter(getattr(data_model, attribute) == value)
+            query = query.filter(attribute == value)
 
         return query

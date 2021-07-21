@@ -49,9 +49,11 @@ def create_and_insert_metadata_and_set_metadata_id_to_frames(frames: list, image
     db = SQLAlchemyHandler()
     for index, image in enumerate(images):
         fov, azi, elev, tag = metadata_utils.get_metadata_arguments(image)
-        metadata = db.get_entity(data_model=data_models.Metadata,
-                                 select_section=['id'],
-                                 attributes_filters={'fov': fov, 'azimuth': azi, 'elevation': elev, 'tag': tag})
+        metadata = db.aaa(select_section=[getattr(data_models.Metadata, 'id')],
+                          attributes_filters={getattr(data_models.Metadata, 'fov'): fov,
+                                              getattr(data_models.Metadata, 'azimuth'): azi,
+                                              getattr(data_models.Metadata, 'elevation'): elev,
+                                              getattr(data_models.Metadata, 'tag'): tag})
 
         if metadata is None:
             metadata = data_models.Metadata(fov=fov, azimuth=azi, elevation=elev, tag=tag)

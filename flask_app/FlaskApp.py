@@ -28,6 +28,7 @@ class FlaskAppHandler(metaclass=Singleton):
             self.db.init_database()
 
     def run(self):
+        self.app.add_url_rule('/download_tagged_frames', view_func=self.download_tagged_frames, methods=['POST'])
         self.app.add_url_rule('/download_video', view_func=self.download_video, methods=['POST'])
         self.app.add_url_rule('/frame_path_by_index_and_videoid',
                               view_func=self.get_frame_path_by_index_and_video_id,
@@ -38,48 +39,81 @@ class FlaskAppHandler(metaclass=Singleton):
         self.app.add_url_rule('/upload_video', view_func=self.upload_video, methods=['POST'])
         self.app.run()
 
+    async def download_tagged_frames(self):
+        video_id = request.json['video_id']
+        local_path_to_save_frames = request.json['local_path_to_save_frames']
+
+        frames = self.db.get_entities(
+            select_section=[getattr(data_models.Frame, 'os_path')],
+            attributes_filters={getattr(data_models.Frame, 'video_id'): video_id,
+                                getattr(data_models.Frame, 'metadata_id'): data_models.Metadata.id,
+                                getattr(data_models.Metadata, 'tag'): True})
+
+        frames_os_path = [frame[0] for frame in frames]
+
+        if not frames_os_path:
+            Logger.logger.info(f"Can't find tagged frame for video_id: {video_id}")
+        else:
+            if not os.path.exists(local_path_to_save_frames):
+                os.makedirs(local_path_to_save_frames)
+
+            Logger.logger.info(f"Start downloading frames to local path: {local_path_to_save_frames}")
+            for index, path in enumerate(frames_os_path):
+                frame_local_path = os.path.join(local_path_to_save_frames, f"frame{index+1}")
+                await self.azure_container_handler.save_file_to_local_path(path, frame_local_path)
+
+            Logger.logger.info(f"Finish downloading frames to local path: {local_path_to_save_frames}")
+
+        return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
+
     async def download_video(self):
         video_id = request.json['video_id']
         local_path_to_save_video = request.json['local_path_to_save_video']
-        video_path = self.db.get_entity(data_model=data_models.Video,
-                                        select_section=['os_path'],
-                                        attributes_filters={'id': video_id})[0]
+        video_path = self.db.get_entity(select_section=[getattr(data_models.Video, 'os_path')],
+                                        attributes_filters={getattr(data_models.Video, 'id'): video_id})
 
-        if not os.path.exists(local_path_to_save_video):
-            os.makedirs(local_path_to_save_video)
+        video_path = video_path[0] if video_path else None
 
-        await self.azure_container_handler.save_file_to_local_path(video_path, local_path_to_save_video)
+        if video_path in None:
+            Logger.logger.info(f'Can\'t find video id: {video_id}')
+        else:
+            if not os.path.exists(local_path_to_save_video):
+                os.makedirs(local_path_to_save_video)
+
+            Logger.logger.info(f'Start to download file to: {local_path_to_save_video}')
+            await self.azure_container_handler.save_file_to_local_path(video_path, local_path_to_save_video)
+            Logger.logger.info(f'Finish to download file to: {local_path_to_save_video}')
 
         return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
 
     def get_frame_path_by_index_and_video_id(self):
         video_id = request.json['video_id']
         frame_index = request.json['frame_index']
-        videos_dict = dict(self.db.get_entities(data_model=data_models.Frame,
-                                                select_section=['id', 'os_path'],
-                                                attributes_filters={'video_id': video_id, 'index': frame_index}))
+        videos_dict = dict(self.db.get_entities(select_section=[getattr(data_models.Frame, 'id'),
+                                                                getattr(data_models.Frame, 'os_path')],
+                                                attributes_filters={getattr(data_models.Frame, 'video_id'): video_id,
+                                                                    getattr(data_models.Frame, 'index'): frame_index}))
 
         return json.dumps({'path': videos_dict}), 200, {'ContentType': 'application/json'}
 
     def get_frames_path_from_video_id(self):
         video_id = request.json['video_id']
-        videos_dict = dict(self.db.get_entities(data_model=data_models.Frame,
-                                                select_section=['id', 'os_path'],
-                                                attributes_filters={'video_id': video_id}))
+        videos_dict = dict(self.db.get_entities(select_section=[getattr(data_models.Frame, 'id'),
+                                                                getattr(data_models.Frame, 'os_path')],
+                                                attributes_filters={getattr(data_models.Frame, 'video_id'): video_id}))
 
         return json.dumps({'path': videos_dict}), 200, {'ContentType': 'application/json'}
 
     def get_video_path_by_id(self):
         video_id = request.json['video_id']
-        video_path = self.db.get_entity(data_model=data_models.Video,
-                                        select_section=['os_path'],
-                                        attributes_filters={'id': video_id})[0]
+        video_path = self.db.get_entity(select_section=[getattr(data_models.Frame, 'os_path')],
+                                        attributes_filters={getattr(data_models.Frame, 'video_id'): video_id})[0]
 
         return json.dumps({'path': video_path}), 200, {'ContentType': 'application/json'}
 
     def get_videos_path(self):
-        videos_path = dict(self.db.get_entities(data_model=data_models.Video,
-                                                select_section=['id', 'os_path'],
+        videos_path = dict(self.db.get_entities(select_section=[getattr(data_models.Video, 'id'),
+                                                                getattr(data_models.Video, 'os_path')],
                                                 attributes_filters={}))
         return json.dumps({'videos_path': videos_path}), 200, {'ContentType': 'application/json'}
 
