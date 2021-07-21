@@ -60,3 +60,31 @@ def create_and_insert_metadata_and_set_metadata_id_to_frames(frames: list, image
             db.insert_one(metadata)
 
         frames[index].set_metadata_id(metadata.id)
+
+
+def get_videos_path_dict():
+    db = SQLAlchemyHandler()
+    return dict(db.get_entities(select_section=[getattr(data_models.Video, 'id'),
+                                                getattr(data_models.Video, 'os_path')],
+                                attributes_filters={}))
+
+
+def get_video_path_by_id(video_id):
+    db = SQLAlchemyHandler()
+    return db.get_entity(select_section=[getattr(data_models.Video, 'os_path')],
+                         attributes_filters={getattr(data_models.Video, 'id'): video_id})
+
+
+def get_frames_path_by_video_id_dict(video_id):
+    db = SQLAlchemyHandler()
+    return dict(db.get_entities(select_section=[getattr(data_models.Frame, 'id'),
+                                                getattr(data_models.Frame, 'os_path')],
+                                attributes_filters={getattr(data_models.Frame, 'video_id'): video_id}))
+
+
+def get_frame_path_by_index_and_video_id(video_id, frame_index):
+    db = SQLAlchemyHandler()
+    return dict(db.get_entities(select_section=[getattr(data_models.Frame, 'id'),
+                                                getattr(data_models.Frame, 'os_path')],
+                                attributes_filters={getattr(data_models.Frame, 'video_id'): video_id,
+                                                    getattr(data_models.Frame, 'index'): frame_index}))
