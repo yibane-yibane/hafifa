@@ -8,7 +8,6 @@ from hafifa.singleton import Singleton
 from hafifa.logger.logger import Logger
 from concurrent.futures import ThreadPoolExecutor
 from hafifa.flask_app.FlaskConfig import FlaskConfig
-from hafifa.data_base.SQLAlchemy import SQLAlchemyHandler
 from hafifa.object_storage.azure_container_handler import AzureBlobContainerHandler
 
 
@@ -16,15 +15,7 @@ class FlaskAppHandler(metaclass=Singleton):
     def __init__(self):
         self.app = Flask(__name__, instance_relative_config=False)
         self.app.config.from_object(FlaskConfig)
-        self.db = SQLAlchemyHandler(self.app)
         self.azure_container_handler = AzureBlobContainerHandler()
-
-    def init_database(self):
-        """
-        Initiate database clear data models and create them
-        """
-        with self.app.app_context():
-            self.db.init_database()
 
     def run(self):
         self.app.add_url_rule('/upload_video', view_func=self.upload_video, methods=['POST'])
