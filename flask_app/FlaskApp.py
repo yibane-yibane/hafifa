@@ -34,11 +34,7 @@ class FlaskAppHandler(metaclass=Singleton):
         video_id = request.json['video_id']
         local_path_to_save_frames = request.json['local_path_to_save_frames']
 
-        frames = self.db.get_entities(
-            select_section=[getattr(data_models.Frame, 'os_path')],
-            attributes_filters={getattr(data_models.Frame, 'video_id'): video_id,
-                                getattr(data_models.Frame, 'metadata_id'): data_models.Metadata.id,
-                                getattr(data_models.Metadata, 'tag'): True})
+        frames = DataModelTransactions.get_tagged_frame_path_by_video_id(video_id)
 
         frames_os_path = [frame[0] for frame in frames]
 
@@ -64,7 +60,7 @@ class FlaskAppHandler(metaclass=Singleton):
 
         video_path = video_path[0] if video_path else None
 
-        if video_path in None:
+        if video_path is None:
             Logger.logger.info(f'Can\'t find video id: {video_id}')
         else:
             if not os.path.exists(local_path_to_save_video):

@@ -88,3 +88,11 @@ def get_frame_path_by_index_and_video_id(video_id, frame_index):
                                                 getattr(data_models.Frame, 'os_path')],
                                 attributes_filters={getattr(data_models.Frame, 'video_id'): video_id,
                                                     getattr(data_models.Frame, 'index'): frame_index}))
+
+
+def get_tagged_frame_path_by_video_id(video_id):
+    db = SQLAlchemyHandler()
+    db.get_entities(select_section=[getattr(data_models.Frame, 'os_path')],
+                    attributes_filters={getattr(data_models.Frame, 'video_id'): video_id,
+                                        getattr(data_models.Frame, 'metadata_id'): data_models.Metadata.id,
+                                        getattr(data_models.Metadata, 'tag'): True})
