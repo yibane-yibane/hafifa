@@ -32,9 +32,7 @@ class FlaskAppHandler(metaclass=Singleton):
     async def download_video(self):
         video_id = request.json['video_id']
         local_path_to_save_video = request.json['local_path_to_save_video']
-        video_path = self.db.get_entity(data_model=data_models.Video,
-                                        select_section=['os_path'],
-                                        attributes_filters={'id': video_id})[0]
+        video_path = DataModelTransactions.get_video_path_by_id(video_id)
 
         if not os.path.exists(local_path_to_save_video):
             os.makedirs(local_path_to_save_video)
