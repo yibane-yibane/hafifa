@@ -27,17 +27,13 @@ class FlaskAppHandler(metaclass=Singleton):
 
     def get_frames_path_from_video_id(self):
         video_id = request.json['video_id']
-        videos_dict = dict(self.db.get_entities(data_model=data_models.Frame,
-                                                select_section=['id', 'os_path'],
-                                                attributes_filters={'video_id': video_id}))
+        videos_dict = DataModelTransactions.get_frames_path_by_video_id_dict(video_id)
 
         return json.dumps({'path': videos_dict}), 200, {'ContentType': 'application/json'}
 
     def get_video_path_by_id(self):
         video_id = request.json['video_id']
-        video_path = self.db.get_entity(data_model=data_models.Video,
-                                        select_section=['os_path'],
-                                        attributes_filters={'id': video_id})[0]
+        video_path = DataModelTransactions.get_video_path_by_id(video_id)
 
         return json.dumps({'path': video_path}), 200, {'ContentType': 'application/json'}
 

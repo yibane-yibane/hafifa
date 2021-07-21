@@ -65,3 +65,17 @@ def get_videos_path_dict():
     return dict(db.get_entities(data_model=data_models.Video,
                                 select_section=['id', 'os_path'],
                                 attributes_filters={}))
+
+
+def get_video_path_by_id(video_id):
+    db = SQLAlchemyHandler()
+    return db.get_entity(data_model=data_models.Video,
+                         select_section=['os_path'],
+                         attributes_filters={'id': video_id})[0]
+
+
+def get_frames_path_by_video_id_dict(video_id):
+    db = SQLAlchemyHandler()
+    return dict(db.get_entities(data_model=data_models.Frame,
+                                select_section=['id', 'os_path'],
+                                attributes_filters={'video_id': video_id}))
