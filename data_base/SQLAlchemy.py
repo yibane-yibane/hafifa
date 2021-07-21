@@ -1,14 +1,13 @@
 from sqlalchemy import exists
-
 from hafifa.data_base.DB import DB
 from hafifa.singleton import Singleton
 import hafifa.data_base.data_models as data_models
+from  hafifa.data_base.query_creator import create_query
 
 
 class SQLAlchemyHandler(metaclass=Singleton):
-    def __init__(self, app):
+    def __init__(self):
         self.db = DB.db
-        self.db.init_app(app)
 
     def create_data_models(self):
         self.db.create_all()
@@ -43,22 +42,11 @@ class SQLAlchemyHandler(metaclass=Singleton):
         return self.db.session.query(exists_query).scalar()
 
     def get_entities(self, select_section: list, attributes_filters: dict):
-        query = self._create_query(select_section, attributes_filters)
+        query = create_query(select_section, attributes_filters)
 
         return query.all()
 
     def get_entity(self, select_section: list, attributes_filters: dict):
-        query = self._create_query(select_section, attributes_filters)
+        query = create_query(select_section, attributes_filters)
 
         return query.first()
-
-    def _create_query(self, select_section: list, attributes_filters: dict):
-        query = self.db.session.query()
-
-        for select_field in select_section:
-            query = query.add_columns(select_field)
-
-        for attribute, value in attributes_filters.items():
-            query = query.filter(attribute == value)
-
-        return query
