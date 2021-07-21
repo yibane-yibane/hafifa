@@ -24,7 +24,7 @@ class FlaskAppHandler(metaclass=Singleton):
         self.app.run()
 
     def get_videos_path(self):
-        videos_path_dict = DataModelTransactions.get_videos_path_dict()
+        videos_path_dict = dict(DataModelTransactions.get_videos_path())
         return json.dumps({'videos_path': videos_path_dict}), 200, {'ContentType': 'application/json'}
 
     async def upload_video(self):

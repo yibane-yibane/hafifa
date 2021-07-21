@@ -60,8 +60,8 @@ def create_and_insert_metadata_and_set_metadata_id_to_frames(frames: list, image
         frames[index].set_metadata_id(metadata.id)
 
 
-def get_videos_path_dict():
+def get_videos_path():
     db = SQLAlchemyHandler()
-    return dict(db.get_entities(data_model=data_models.Video,
-                                select_section=['id', 'os_path'],
-                                attributes_filters={}))
+    return db.get_entities(data_model=data_models.Video,
+                           select_section=['id', 'os_path'],
+                           attributes_filters={})
