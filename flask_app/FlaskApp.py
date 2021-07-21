@@ -9,7 +9,6 @@ from hafifa.logger.logger import Logger
 from hafifa.data_base import data_models
 from concurrent.futures import ThreadPoolExecutor
 from hafifa.flask_app.FlaskConfig import FlaskConfig
-from hafifa.data_base.SQLAlchemy import SQLAlchemyHandler
 from hafifa.object_storage.azure_container_handler import AzureBlobContainerHandler
 
 
@@ -17,15 +16,7 @@ class FlaskAppHandler(metaclass=Singleton):
     def __init__(self):
         self.app = Flask(__name__, instance_relative_config=False)
         self.app.config.from_object(FlaskConfig)
-        self.db = SQLAlchemyHandler(self.app)
         self.azure_container_handler = AzureBlobContainerHandler()
-
-    def init_database(self):
-        """
-        Initiate database clear data models and create them
-        """
-        with self.app.app_context():
-            self.db.init_database()
 
     def run(self):
         self.app.add_url_rule('/download_video', view_func=self.download_video, methods=['POST'])
@@ -55,33 +46,25 @@ class FlaskAppHandler(metaclass=Singleton):
     def get_frame_path_by_index_and_video_id(self):
         video_id = request.json['video_id']
         frame_index = request.json['frame_index']
-        videos_dict = dict(self.db.get_entities(data_model=data_models.Frame,
-                                                select_section=['id', 'os_path'],
-                                                attributes_filters={'video_id': video_id, 'index': frame_index}))
+        videos_dict = DataModelTransactions.get_frame_path_by_index_and_video_id(video_id, frame_index)
 
         return json.dumps({'path': videos_dict}), 200, {'ContentType': 'application/json'}
 
     def get_frames_path_from_video_id(self):
         video_id = request.json['video_id']
-        videos_dict = dict(self.db.get_entities(data_model=data_models.Frame,
-                                                select_section=['id', 'os_path'],
-                                                attributes_filters={'video_id': video_id}))
+        videos_dict = DataModelTransactions.get_frames_path_by_video_id_dict(video_id)
 
         return json.dumps({'path': videos_dict}), 200, {'ContentType': 'application/json'}
 
     def get_video_path_by_id(self):
         video_id = request.json['video_id']
-        video_path = self.db.get_entity(data_model=data_models.Video,
-                                        select_section=['os_path'],
-                                        attributes_filters={'id': video_id})[0]
+        video_path = DataModelTransactions.get_video_path_by_id(video_id)
 
         return json.dumps({'path': video_path}), 200, {'ContentType': 'application/json'}
 
     def get_videos_path(self):
-        videos_path = dict(self.db.get_entities(data_model=data_models.Video,
-                                                select_section=['id', 'os_path'],
-                                                attributes_filters={}))
-        return json.dumps({'videos_path': videos_path}), 200, {'ContentType': 'application/json'}
+        videos_path_dict = DataModelTransactions.get_videos_path_dict()
+        return json.dumps({'videos_path': videos_path_dict}), 200, {'ContentType': 'application/json'}
 
     async def upload_video(self):
         """
