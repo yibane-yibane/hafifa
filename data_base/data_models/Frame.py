@@ -1,12 +1,14 @@
 from sqlalchemy import Column, String, Integer, ForeignKey
 from hafifa.data_base.DB import DB
-from hafifa.singleton import Singleton
 
 
 class Frame(DB.db.Model):
     __tablename__ = 'frames'
-    id = Column(Integer, primary_key=True)
-    video_id = Column(String, ForeignKey('videos.id'))
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    video_id = Column(Integer, ForeignKey('videos.id'))
     metadata_id = Column(Integer, ForeignKey('metadata.id'))
     os_path = Column(String)
     index = Column(Integer)
+
+    def set_metadata_id(self, metadata_id: int):
+        self.metadata_id = metadata_id
