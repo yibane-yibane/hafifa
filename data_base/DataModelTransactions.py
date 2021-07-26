@@ -65,5 +65,4 @@ def get_videos_paths():
     db = SQLAlchemyHandler()
     return db.get_entities(data_model=data_models.Video,
                            select_section=['os_path'],
-                           attributes_filters={},
-                           count=None)
+                           attributes_filters={})
