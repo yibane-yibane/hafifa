@@ -30,9 +30,9 @@ class FlaskAppHandler(metaclass=Singleton):
     def get_frame_path_by_index_and_video_id(self):
         video_id = request.json['video_id']
         frame_index = request.json['frame_index']
-        videos_dict = dict(DataModelTransactions.get_frame_path_by_index_and_video_id(video_id, frame_index))
+        frame_path = DataModelTransactions.get_frame_path_by_index_and_video_id(video_id, frame_index)
 
-        return json.dumps({'path': videos_dict}), 200, {'ContentType': 'application/json'}
+        return json.dumps({'path': frame_path}), 200, {'ContentType': 'application/json'}
 
     def get_frames_path_from_video_id(self):
         video_id = request.json['video_id']

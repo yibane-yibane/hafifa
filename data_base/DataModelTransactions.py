@@ -86,5 +86,5 @@ def get_frames_path_by_video_id(video_id):
 def get_frame_path_by_index_and_video_id(video_id, frame_index):
     db = SQLAlchemyHandler()
     return db.get_entities(data_model=data_models.Frame,
-                           select_section=['id', 'os_path'],
+                           select_section=['os_path'],
                            attributes_filters={'video_id': video_id, 'index': frame_index})
