@@ -49,9 +49,10 @@ def create_and_insert_metadata_and_set_metadata_id_to_frames(frames: list, image
     db = SQLAlchemyHandler()
     for index, image in enumerate(images):
         fov, azi, elev, tag = metadata_utils.get_metadata_arguments(image)
-        metadata = db.get_entity(data_model=data_models.Metadata,
-                                 select_section=['id'],
-                                 attributes_filters={'fov': fov, 'azimuth': azi, 'elevation': elev, 'tag': tag})
+        metadata = db.get_entities(data_model=data_models.Metadata,
+                                   select_section=['id'],
+                                   attributes_filters={'fov': fov, 'azimuth': azi, 'elevation': elev, 'tag': tag},
+                                   count=1)
 
         if metadata is None:
             metadata = data_models.Metadata(fov=fov, azimuth=azi, elevation=elev, tag=tag)
@@ -60,8 +61,9 @@ def create_and_insert_metadata_and_set_metadata_id_to_frames(frames: list, image
         frames[index].set_metadata_id(metadata.id)
 
 
-def get_videos_path():
+def get_videos_paths():
     db = SQLAlchemyHandler()
     return db.get_entities(data_model=data_models.Video,
-                           select_section=['id', 'os_path'],
-                           attributes_filters={})
+                           select_section=['os_path'],
+                           attributes_filters={},
+                           count=None)

@@ -6,7 +6,6 @@ import hafifa.data_base.DataModelTransactions as DataModelTransactions
 from flask import Flask, request
 from hafifa.singleton import Singleton
 from hafifa.logger.logger import Logger
-from hafifa.data_base import data_models
 from concurrent.futures import ThreadPoolExecutor
 from hafifa.flask_app.FlaskConfig import FlaskConfig
 from hafifa.object_storage.azure_container_handler import AzureBlobContainerHandler
@@ -19,13 +18,13 @@ class FlaskAppHandler(metaclass=Singleton):
         self.azure_container_handler = AzureBlobContainerHandler()
 
     def run(self):
-        self.app.add_url_rule('/get_videos_path', view_func=self.get_videos_path, methods=['GET'])
+        self.app.add_url_rule('/get_videos_paths', view_func=self.get_videos_paths, methods=['GET'])
         self.app.add_url_rule('/upload_video', view_func=self.upload_video, methods=['POST'])
         self.app.run()
 
-    def get_videos_path(self):
-        videos_path_dict = dict(DataModelTransactions.get_videos_path())
-        return json.dumps({'videos_path': videos_path_dict}), 200, {'ContentType': 'application/json'}
+    def get_videos_paths(self):
+        videos_paths = DataModelTransactions.get_videos_paths()
+        return json.dumps({'videos_paths': videos_paths}), 200, {'ContentType': 'application/json'}
 
     async def upload_video(self):
         """
