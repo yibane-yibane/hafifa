@@ -36,7 +36,7 @@ class AzureBlobContainerHandler:
         for index, image in enumerate(images):
             _, img_encode = cv2.imencode('.jpg', image)
             img_bytes = img_encode.tobytes()
-            thread_pool.submit(self.upload_blob, img_bytes, os.path.join(azure_path, f'frame{index+1}.jpg'))
+            thread_pool.submit(self.upload_blob, img_bytes, os.path.join(azure_path, f'frame{index}.jpg'))
 
         Logger.logger.info(f'Finish to upload images for path: {local_file_path}')
 
