@@ -28,14 +28,6 @@ class SQLAlchemyHandler(metaclass=Singleton):
         self.db.session.add_all(table_instances)
         self.db.session.commit()
 
-    def get_one(self, data_model, attributes_filters: dict):
-        query = self.db.session.query(data_model)
-
-        for model_and_attr, value in attributes_filters.items():
-            query = query.filter(data_model.__dict__[model_and_attr] == value)
-
-        return query.first()
-
     def is_data_model_exists(self, data_model: DB.db.Model, where_section: dict):
         """
         Check if data model instance exists in db.
@@ -49,3 +41,32 @@ class SQLAlchemyHandler(metaclass=Singleton):
             exists_query = exists_query.where(data_model.__dict__[field] == value)
 
         return self.db.session.query(exists_query).scalar()
+
+    def get_entities(self, data_model, select_section: list, attributes_filters: dict, count=0):
+        """
+        Get entities from database.
+        :param data_model: Data model to query.
+        :param select_section: The query select section.
+        :param attributes_filters: The query filter dictionary.
+        :param count: How many to get 0 mean all.
+        :return: The entities from the query.
+        """
+        query = self._create_query(data_model, select_section, attributes_filters)
+
+        if count == 1:
+            return query.first()
+        elif count > 1:
+            return query.limit(count).all()
+        else:
+            return query.all()
+
+    def _create_query(self, data_model, select_section: list, attributes_filters: dict):
+        query = self.db.session.query()
+
+        for select_field in select_section:
+            query = query.add_columns(getattr(data_model, select_field))
+
+        for attribute, value in attributes_filters.items():
+            query = query.filter(getattr(data_model, attribute) == value)
+
+        return query
