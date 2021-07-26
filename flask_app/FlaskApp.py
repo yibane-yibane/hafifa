@@ -18,9 +18,23 @@ class FlaskAppHandler(metaclass=Singleton):
         self.azure_container_handler = AzureBlobContainerHandler()
 
     def run(self):
+        self.app.add_url_rule('/frames_path_by_videoid', view_func=self.get_frames_path_from_video_id, methods=['POST'])
+        self.app.add_url_rule('/video_path_by_id', view_func=self.get_video_path_by_id, methods=['POST'])
         self.app.add_url_rule('/get_videos_paths', view_func=self.get_videos_paths, methods=['GET'])
         self.app.add_url_rule('/upload_video', view_func=self.upload_video, methods=['POST'])
         self.app.run()
+
+    def get_frames_path_from_video_id(self):
+        video_id = request.json['video_id']
+        frames_paths = DataModelTransactions.get_frames_path_by_video_id(video_id)
+
+        return json.dumps({'frames_paths': frames_paths}), 200, {'ContentType': 'application/json'}
+
+    def get_video_path_by_id(self):
+        video_id = request.json['video_id']
+        video_path = DataModelTransactions.get_video_path_by_id(video_id)
+
+        return json.dumps({'path': video_path}), 200, {'ContentType': 'application/json'}
 
     def get_videos_paths(self):
         videos_paths = DataModelTransactions.get_videos_paths()
