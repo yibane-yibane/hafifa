@@ -26,9 +26,9 @@ class FlaskAppHandler(metaclass=Singleton):
 
     def get_frames_path_from_video_id(self):
         video_id = request.json['video_id']
-        videos_dict = dict(DataModelTransactions.get_frames_path_by_video_id(video_id))
+        frames_paths = DataModelTransactions.get_frames_path_by_video_id(video_id)
 
-        return json.dumps({'path': videos_dict}), 200, {'ContentType': 'application/json'}
+        return json.dumps({'frames_paths': frames_paths}), 200, {'ContentType': 'application/json'}
 
     def get_video_path_by_id(self):
         video_id = request.json['video_id']

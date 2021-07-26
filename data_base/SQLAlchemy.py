@@ -42,7 +42,15 @@ class SQLAlchemyHandler(metaclass=Singleton):
 
         return self.db.session.query(exists_query).scalar()
 
-    def get_entities(self, data_model, select_section: list, attributes_filters: dict, count):
+    def get_entities(self, data_model, select_section: list, attributes_filters: dict, count=0):
+        """
+        Get entities from database.
+        :param data_model: Data model to query.
+        :param select_section: The query select section.
+        :param attributes_filters: The query filter dictionary.
+        :param count: How many to get 0 mean all.
+        :return: The entities from the query.
+        """
         query = self._create_query(data_model, select_section, attributes_filters)
 
         if count == 1:

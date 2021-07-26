@@ -65,8 +65,7 @@ def get_videos_paths():
     db = SQLAlchemyHandler()
     return db.get_entities(data_model=data_models.Video,
                            select_section=['os_path'],
-                           attributes_filters={},
-                           count=None)
+                           attributes_filters={})
 
 
 def get_video_path_by_id(video_id):
@@ -81,5 +80,4 @@ def get_frames_path_by_video_id(video_id):
     db = SQLAlchemyHandler()
     return db.get_entities(data_model=data_models.Frame,
                            select_section=['os_path'],
-                           attributes_filters={'video_id': video_id},
-                           count=None)
+                           attributes_filters={'video_id': video_id})
