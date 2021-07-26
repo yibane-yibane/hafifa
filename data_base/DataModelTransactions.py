@@ -49,9 +49,10 @@ def create_and_insert_metadata_and_set_metadata_id_to_frames(frames: list, image
     db = SQLAlchemyHandler()
     for index, image in enumerate(images):
         fov, azi, elev, tag = metadata_utils.get_metadata_arguments(image)
-        metadata = db.get_entity(data_model=data_models.Metadata,
-                                 select_section=['id'],
-                                 attributes_filters={'fov': fov, 'azimuth': azi, 'elevation': elev, 'tag': tag})
+        metadata = db.get_entities(data_model=data_models.Metadata,
+                                   select_section=['id'],
+                                   attributes_filters={'fov': fov, 'azimuth': azi, 'elevation': elev, 'tag': tag},
+                                   count=1)
 
         if metadata is None:
             metadata = data_models.Metadata(fov=fov, azimuth=azi, elevation=elev, tag=tag)
@@ -60,24 +61,25 @@ def create_and_insert_metadata_and_set_metadata_id_to_frames(frames: list, image
         frames[index].set_metadata_id(metadata.id)
 
 
-def get_videos_path():
+def get_videos_paths():
     db = SQLAlchemyHandler()
     return db.get_entities(data_model=data_models.Video,
-                           select_section=['id', 'os_path'],
+                           select_section=['os_path'],
                            attributes_filters={})
 
 
 def get_video_path_by_id(video_id):
     db = SQLAlchemyHandler()
-    return db.get_entity(data_model=data_models.Video,
-                         select_section=['os_path'],
-                         attributes_filters={'id': video_id})[0]
+    return db.get_entities(data_model=data_models.Video,
+                           select_section=['os_path'],
+                           attributes_filters={'id': video_id},
+                           count=1)
 
 
 def get_frames_path_by_video_id(video_id):
     db = SQLAlchemyHandler()
     return db.get_entities(data_model=data_models.Frame,
-                           select_section=['id', 'os_path'],
+                           select_section=['os_path'],
                            attributes_filters={'video_id': video_id})
 
 
