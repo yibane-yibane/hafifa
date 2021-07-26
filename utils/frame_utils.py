@@ -24,7 +24,7 @@ def create_frame_models(number_of_frames: int, video_id: str, video_name: str):
     :return: Frame instances list.
     """
 
-    return [data_models.Frame(video_id=video_id, os_path=create_frame_os_path(video_name, index+1), index=index+1)
+    return [data_models.Frame(video_id=video_id, os_path=create_frame_os_path(video_name, index), index=index)
             for index in range(number_of_frames)]
 
 
