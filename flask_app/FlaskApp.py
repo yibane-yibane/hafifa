@@ -18,30 +18,33 @@ class FlaskAppHandler(metaclass=Singleton):
         self.azure_container_handler = AzureBlobContainerHandler()
 
     def run(self):
-        self.app.add_url_rule('/frame_path_by_index_and_videoid',
+        self.app.add_url_rule('/get_frame_os_path_from_index_and_video_id',
                               view_func=self.get_frame_path_by_index_and_video_id,
-                              methods=['POST'])
-        self.app.add_url_rule('/frames_path_by_videoid', view_func=self.get_frames_path_from_video_id, methods=['POST'])
-        self.app.add_url_rule('/video_path_by_id', view_func=self.get_video_path_by_id, methods=['POST'])
-        self.app.add_url_rule('/get_videos_paths', view_func=self.get_videos_paths, methods=['GET'])
+                              methods=['GET'])
+        self.app.add_url_rule('/get_frames_os_paths_from_video_id',
+                              view_func=self.get_frames_path_from_video_id,
+                              methods=['GET'])
+        self.app.add_url_rule('/get_video_os_path_from_id', view_func=self.get_video_path_by_id, methods=['GET'])
+        self.app.add_url_rule('/get_all_videos_os_path', view_func=self.get_videos_paths, methods=['GET'])
         self.app.add_url_rule('/upload_video', view_func=self.upload_video, methods=['POST'])
         self.app.run()
 
     def get_frame_path_by_index_and_video_id(self):
-        video_id = request.json['video_id']
-        frame_index = request.json['frame_index']
+        video_id = request.args.get("video_id")
+        frame_index = request.args.get("frame_index")
+
         frame_path = DataModelTransactions.get_frame_path_by_index_and_video_id(video_id, frame_index)
 
         return json.dumps({'path': frame_path}), 200, {'ContentType': 'application/json'}
 
     def get_frames_path_from_video_id(self):
-        video_id = request.json['video_id']
+        video_id = request.args.get("video_id")
         frames_paths = DataModelTransactions.get_frames_path_by_video_id(video_id)
 
         return json.dumps({'frames_paths': frames_paths}), 200, {'ContentType': 'application/json'}
 
     def get_video_path_by_id(self):
-        video_id = request.json['video_id']
+        video_id = request.args.get("video_id")
         video_path = DataModelTransactions.get_video_path_by_id(video_id)
 
         return json.dumps({'path': video_path}), 200, {'ContentType': 'application/json'}
