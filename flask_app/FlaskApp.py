@@ -18,7 +18,7 @@ class FlaskAppHandler(metaclass=Singleton):
         self.azure_container_handler = AzureBlobContainerHandler()
 
     def run(self):
-        self.app.add_url_rule('/frame/path/<index>/<video_id>',
+        self.app.add_url_rule('/frame/path/<video_id>/<index>',
                               view_func=self.get_frame_path_by_index_and_video_id,
                               methods=['GET'])
         self.app.add_url_rule('/frame/paths/<video_id>',
