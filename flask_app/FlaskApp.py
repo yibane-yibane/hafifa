@@ -4,9 +4,9 @@ import asyncio
 import hafifa.utils.frame_utils as frame_utils
 import hafifa.data_base.DataModelTransactions as DataModelTransactions
 from io import BytesIO
-from flask import Flask, request, send_file
 from hafifa.singleton import Singleton
 from hafifa.logger.logger import Logger
+from flask import Flask, request, send_file
 from concurrent.futures import ThreadPoolExecutor
 from hafifa.flask_app.FlaskConfig import FlaskConfig
 from hafifa.object_storage.azure_container_handler import AzureBlobContainerHandler
@@ -19,6 +19,9 @@ class FlaskAppHandler(metaclass=Singleton):
         self.azure_container_handler = AzureBlobContainerHandler()
 
     def run(self):
+        self.app.add_url_rule('/video/download/<video_id>',
+                              view_func=self.download_video,
+                              methods=['GET'])
         self.app.add_url_rule('/frame/path/<video_id>/<index>',
                               view_func=self.get_frame_path_by_index_and_video_id,
                               methods=['GET'])
@@ -30,8 +33,7 @@ class FlaskAppHandler(metaclass=Singleton):
         self.app.add_url_rule('/video/upload', view_func=self.upload_video, methods=['POST'])
         self.app.run()
 
-    async def download_video(self):
-        video_id = request.json['video_id']
+    async def download_video(self, video_id):
         video_path = DataModelTransactions.get_video_path_by_id(video_id)
 
         video = await self.azure_container_handler.get_binary_blob_context(video_path)

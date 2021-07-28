@@ -65,7 +65,7 @@ class AzureBlobContainerHandler:
     async def save_file_to_local_path(self, os_path: str, local_path: str):
         Logger.logger.info(f'Start to download file to: {local_path}')
         with open(local_path, 'wb+') as file:
-            bytes = await self.get_blob_binary(os_path)
+            bytes = await self.get_binary_blob_context(os_path)
             file.write(bytes)
 
         Logger.logger.info(f'Finish to download file to: {local_path}')
