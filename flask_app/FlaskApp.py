@@ -3,7 +3,8 @@ import os
 import asyncio
 import hafifa.utils.frame_utils as frame_utils
 import hafifa.data_base.DataModelTransactions as DataModelTransactions
-from flask import Flask, request
+from io import BytesIO
+from flask import Flask, request, send_file
 from hafifa.singleton import Singleton
 from hafifa.logger.logger import Logger
 from concurrent.futures import ThreadPoolExecutor
@@ -30,15 +31,11 @@ class FlaskAppHandler(metaclass=Singleton):
 
     async def download_video(self):
         video_id = request.json['video_id']
-        local_path_to_save_video = request.json['local_path_to_save_video']
         video_path = DataModelTransactions.get_video_path_by_id(video_id)
 
-        if not os.path.exists(local_path_to_save_video):
-            os.makedirs(local_path_to_save_video)
+        video = await self.azure_container_handler.get_binary_blob_context(video_path)
 
-        await self.azure_container_handler.save_file_to_local_path(video_path, local_path_to_save_video)
-
-        return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
+        return send_file(BytesIO(video), mimetype='video/mp4')
 
     def get_frame_path_by_index_and_video_id(self):
         video_id = request.json['video_id']
