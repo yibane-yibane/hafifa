@@ -3,9 +3,10 @@ import os
 import asyncio
 import hafifa.utils.frame_utils as frame_utils
 import hafifa.data_base.DataModelTransactions as DataModelTransactions
-from flask import Flask, request
+from io import BytesIO
 from hafifa.singleton import Singleton
 from hafifa.logger.logger import Logger
+from flask import Flask, request, send_file
 from concurrent.futures import ThreadPoolExecutor
 from hafifa.flask_app.FlaskConfig import FlaskConfig
 from hafifa.object_storage.azure_container_handler import AzureBlobContainerHandler
@@ -19,14 +20,18 @@ class FlaskAppHandler(metaclass=Singleton):
 
     def run(self):
         self.app.add_url_rule('/download_tagged_frames', view_func=self.download_tagged_frames, methods=['POST'])
-        self.app.add_url_rule('/download_video', view_func=self.download_video, methods=['POST'])
-        self.app.add_url_rule('/frame_path_by_index_and_videoid',
+        self.app.add_url_rule('/video/download/<video_id>',
+                              view_func=self.download_video,
+                              methods=['GET'])
+        self.app.add_url_rule('/frame/path/<video_id>/<index>',
                               view_func=self.get_frame_path_by_index_and_video_id,
-                              methods=['POST'])
-        self.app.add_url_rule('/frames_path_by_videoid', view_func=self.get_frames_path_from_video_id, methods=['POST'])
-        self.app.add_url_rule('/video_path_by_id', view_func=self.get_video_path_by_id, methods=['POST'])
-        self.app.add_url_rule('/get_videos_paths', view_func=self.get_videos_paths, methods=['GET'])
-        self.app.add_url_rule('/upload_video', view_func=self.upload_video, methods=['POST'])
+                              methods=['GET'])
+        self.app.add_url_rule('/frame/paths/<video_id>',
+                              view_func=self.get_frames_path_from_video_id,
+                              methods=['GET'])
+        self.app.add_url_rule('/video/path/<video_id>', view_func=self.get_video_path_by_id, methods=['GET'])
+        self.app.add_url_rule('/video/paths', view_func=self.get_videos_paths, methods=['GET'])
+        self.app.add_url_rule('/video/upload', view_func=self.upload_video, methods=['POST'])
         self.app.run()
 
     async def download_tagged_frames(self):
@@ -52,40 +57,26 @@ class FlaskAppHandler(metaclass=Singleton):
 
         return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
 
-    async def download_video(self):
-        video_id = request.json['video_id']
-        local_path_to_save_video = request.json['local_path_to_save_video']
+    async def download_video(self, video_id):
         video_path = DataModelTransactions.get_video_path_by_id(video_id)
+        
+        Logger.logger.info(f'Start to download video id: {video_path}')
+        video = await self.azure_container_handler.get_binary_blob_context(video_path)
+        Logger.logger.info(f'Finish to download video id: {video_path}')
 
-        video_path = video_path[0] if video_path else None
+        return send_file(BytesIO(video), mimetype='video/mp4')
 
-        if video_path is None:
-            Logger.logger.info(f'Can\'t find video id: {video_id}')
-        else:
-            if not os.path.exists(local_path_to_save_video):
-                os.makedirs(local_path_to_save_video)
-
-            Logger.logger.info(f'Start to download file to: {local_path_to_save_video}')
-            await self.azure_container_handler.save_file_to_local_path(video_path, local_path_to_save_video)
-            Logger.logger.info(f'Finish to download file to: {local_path_to_save_video}')
-
-        return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
-
-    def get_frame_path_by_index_and_video_id(self):
-        video_id = request.json['video_id']
-        frame_index = request.json['frame_index']
-        frame_path = DataModelTransactions.get_frame_path_by_index_and_video_id(video_id, frame_index)
+    def get_frame_path_by_index_and_video_id(self, index, video_id):
+        frame_path = DataModelTransactions.get_frame_path_by_index_and_video_id(video_id, index)
 
         return json.dumps({'path': frame_path}), 200, {'ContentType': 'application/json'}
 
-    def get_frames_path_from_video_id(self):
-        video_id = request.json['video_id']
+    def get_frames_path_from_video_id(self, video_id):
         frames_paths = DataModelTransactions.get_frames_path_by_video_id(video_id)
 
         return json.dumps({'frames_paths': frames_paths}), 200, {'ContentType': 'application/json'}
 
-    def get_video_path_by_id(self):
-        video_id = request.json['video_id']
+    def get_video_path_by_id(self, video_id):
         video_path = DataModelTransactions.get_video_path_by_id(video_id)
 
         return json.dumps({'path': video_path}), 200, {'ContentType': 'application/json'}
