@@ -49,11 +49,11 @@ def create_and_insert_metadata_and_set_metadata_id_to_frames(frames: list, image
     db = SQLAlchemyHandler()
     for index, image in enumerate(images):
         fov, azi, elev, tag = metadata_utils.get_metadata_arguments(image)
-        metadata = db.get_entities(select_section=[getattr(data_models.Metadata, 'id')],
-                                   attributes_filters={getattr(data_models.Metadata, 'fov'): fov,
-                                                       getattr(data_models.Metadata, 'azimuth'): azi,
-                                                       getattr(data_models.Metadata, 'elevation'): elev,
-                                                       getattr(data_models.Metadata, 'tag'): tag},
+        metadata = db.get_entities(select_section=[data_models.Metadata.id],
+                                   attributes_filters={data_models.Metadata.fov: fov,
+                                                       data_models.Metadata.azimuth: azi,
+                                                       data_models.Metadata.elevation: elev,
+                                                       data_models.Metadata.tag: tag},
                                    count=1)
 
         if metadata is None:
@@ -65,7 +65,7 @@ def create_and_insert_metadata_and_set_metadata_id_to_frames(frames: list, image
 
 def get_videos_paths():
     db = SQLAlchemyHandler()
-    return db.get_entities(select_section=[getattr(data_models.Video, 'os_path')],
+    return db.get_entities(select_section=[data_models.Video.os_path],
                            attributes_filters={})
 
 
@@ -73,27 +73,30 @@ def get_video_path_by_id(video_id):
     db = SQLAlchemyHandler()
 
     # Returns tuple so need to extract the path from it
-    return db.get_entities(select_section=[getattr(data_models.Video, 'os_path')],
-                           attributes_filters={getattr(data_models.Video, 'id'): video_id},
+    return db.get_entities(select_section=[data_models.Video.os_path],
+                           attributes_filters={data_models.Video.id: video_id},
                            count=1)[0]
 
 
 def get_frames_path_by_video_id(video_id):
     db = SQLAlchemyHandler()
-    return db.get_entities(select_section=[getattr(data_models.Frame, 'os_path')],
-                           attributes_filters={getattr(data_models.Frame, 'video_id'): video_id})
+    return db.get_entities(select_section=[data_models.Frame.os_path],
+                           attributes_filters={data_models.Frame.video_id: video_id})
 
 
 def get_frame_path_by_index_and_video_id(video_id, frame_index):
     db = SQLAlchemyHandler()
-    return db.get_entities(select_section=[getattr(data_models.Frame, 'os_path')],
-                           attributes_filters={getattr(data_models.Frame, 'video_id'): video_id,
-                                               getattr(data_models.Frame, 'index'): frame_index})
+
+    # Returns tuple so need to extract the path from it
+    return db.get_entities(select_section=[data_models.Frame.os_path],
+                           attributes_filters={data_models.Frame.video_id: video_id,
+                                               data_models.Frame.index: frame_index},
+                           count=1)[0]
 
 
 def get_tagged_frame_path_by_video_id(video_id):
     db = SQLAlchemyHandler()
-    db.get_entities(select_section=[getattr(data_models.Frame, 'os_path')],
-                    attributes_filters={getattr(data_models.Frame, 'video_id'): video_id,
-                                        getattr(data_models.Frame, 'metadata_id'): data_models.Metadata.id,
-                                        getattr(data_models.Metadata, 'tag'): True})
+    return db.get_entities(select_section=[data_models.Frame.os_path],
+                           attributes_filters={data_models.Frame.video_id: video_id,
+                                               data_models.Frame.metadata_id: data_models.Metadata.id,
+                                               data_models.Metadata.tag: True})

@@ -19,7 +19,7 @@ class FlaskAppHandler(metaclass=Singleton):
         self.azure_container_handler = AzureBlobContainerHandler()
 
     def run(self):
-        self.app.add_url_rule('/download_tagged_frames', view_func=self.download_tagged_frames, methods=['POST'])
+        self.app.add_url_rule('/tagged_frames/download', view_func=self.download_tagged_frames, methods=['GET'])
         self.app.add_url_rule('/video/download/<video_id>',
                               view_func=self.download_video,
                               methods=['GET'])
@@ -35,18 +35,16 @@ class FlaskAppHandler(metaclass=Singleton):
         self.app.run()
 
     async def download_tagged_frames(self):
-        video_id = request.json['video_id']
-        local_path_to_save_frames = request.json['local_path_to_save_frames']
-
+        video_id = request.args.get("video_id")
+        local_path_to_save_frames = request.args.get("local_path_to_save_frames")
         frames = DataModelTransactions.get_tagged_frame_path_by_video_id(video_id)
 
         frames_os_path = [frame[0] for frame in frames]
 
-        if not frames_os_path:
+        if len(frames_os_path):
             Logger.logger.info(f"Can't find tagged frame for video_id: {video_id}")
         else:
-            if not os.path.exists(local_path_to_save_frames):
-                os.makedirs(local_path_to_save_frames)
+            os.makedirs(local_path_to_save_frames, exist_ok=True)
 
             Logger.logger.info(f"Start downloading frames to local path: {local_path_to_save_frames}")
             for index, path in enumerate(frames_os_path):
