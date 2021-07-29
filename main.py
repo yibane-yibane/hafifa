@@ -7,7 +7,7 @@ if __name__ == '__main__':
     db = SQLAlchemyHandler()
     db.db.init_app(app.app)
 
-    # with app.app.app_context():
-    #     db.init_database()
+    with app.app.app_context():
+        db.init_database()
 
     app.run()

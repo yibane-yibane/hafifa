@@ -71,9 +71,11 @@ def get_videos_paths():
 
 def get_video_path_by_id(video_id):
     db = SQLAlchemyHandler()
+
+    # Returns tuple so need to extract the path from it
     return db.get_entities(select_section=[getattr(data_models.Video, 'os_path')],
                            attributes_filters={getattr(data_models.Video, 'id'): video_id},
-                           count=1)
+                           count=1)[0]
 
 
 def get_frames_path_by_video_id(video_id):
