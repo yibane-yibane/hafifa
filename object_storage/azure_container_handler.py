@@ -63,7 +63,7 @@ class AzureBlobContainerHandler:
             Logger.logger.info(f'Finish to upload video for path: {local_file_path}')
 
     async def save_file_to_local_path(self, os_path: str, local_path: str):
-        with open(local_path, 'wb+') as file:
+        with open(local_path, 'wb') as file:
             bytes = await self.get_binary_blob_context(os_path)
             file.write(bytes)
 

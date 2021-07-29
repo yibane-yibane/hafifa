@@ -19,7 +19,9 @@ class FlaskAppHandler(metaclass=Singleton):
         self.azure_container_handler = AzureBlobContainerHandler()
 
     def run(self):
-        self.app.add_url_rule('/download_tagged_frames', view_func=self.download_tagged_frames, methods=['POST'])
+        self.app.add_url_rule('/tagged_frames/download',
+                              view_func=self.download_tagged_frames,
+                              methods=['POST'])
         self.app.add_url_rule('/video/download/<video_id>',
                               view_func=self.download_video,
                               methods=['GET'])

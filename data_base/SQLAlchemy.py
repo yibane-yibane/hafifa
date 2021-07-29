@@ -45,7 +45,6 @@ class SQLAlchemyHandler(metaclass=Singleton):
     def get_entities(self, select_section: list, attributes_filters: dict, count=0):
         """
         Get entities from database.
-        :param data_model: Data model to query.
         :param select_section: The query select section.
         :param attributes_filters: The query filter dictionary.
         :param count: How many to get 0 mean all.
@@ -60,7 +59,7 @@ class SQLAlchemyHandler(metaclass=Singleton):
         else:
             return query.all()
 
-    def _create_query(self, data_model, select_section: list, attributes_filters: dict):
+    def _create_query(self, select_section: list, attributes_filters: dict):
         query = self.db.session.query()
 
         for select_field in select_section:
