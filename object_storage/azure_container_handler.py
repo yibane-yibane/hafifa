@@ -72,9 +72,9 @@ class AzureBlobContainerHandler:
 
     async def get_binary_blob_context(self, os_path):
         """
-        Get the blob context from azure.
+        Get the blob content from azure.
         :param os_path: Blob path in os.
-        :return: Blob context.
+        :return: Blob content.
         """
         blob = await self.blob_container_client_async.get_blob_client(blob=os_path).download_blob()
         return await blob.readall()
