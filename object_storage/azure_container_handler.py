@@ -61,3 +61,17 @@ class AzureBlobContainerHandler:
             blob_client = self.blob_container_client_async.get_blob_client(blob=azure_path)
             await blob_client.upload_blob(file, blob_type="BlockBlob", overwrite=True)
             Logger.logger.info(f'Finish to upload video for path: {local_file_path}')
+
+    async def save_file_to_local_path(self, os_path: str, local_path: str):
+        with open(local_path, 'wb') as file:
+            bytes = await self.get_binary_blob_context(os_path)
+            file.write(bytes)
+
+    async def get_binary_blob_context(self, os_path):
+        """
+        Get the blob content from azure.
+        :param os_path: Blob path in os.
+        :return: Blob content.
+        """
+        blob = await self.blob_container_client_async.get_blob_client(blob=os_path).download_blob()
+        return await blob.readall()
