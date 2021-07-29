@@ -1,14 +1,13 @@
 from sqlalchemy import exists
-
 from hafifa.data_base.DB import DB
 from hafifa.singleton import Singleton
 import hafifa.data_base.data_models as data_models
+from  hafifa.data_base.query_creator import create_query
 
 
 class SQLAlchemyHandler(metaclass=Singleton):
-    def __init__(self, app):
+    def __init__(self):
         self.db = DB.db
-        self.db.init_app(app)
 
     def create_data_models(self):
         self.db.create_all()
@@ -50,7 +49,7 @@ class SQLAlchemyHandler(metaclass=Singleton):
         :param count: How many to get 0 mean all.
         :return: The entities from the query.
         """
-        query = self._create_query(select_section, attributes_filters)
+        query = create_query(self.db.session.query(), select_section, attributes_filters)
 
         if count == 1:
             return query.first()
@@ -58,14 +57,3 @@ class SQLAlchemyHandler(metaclass=Singleton):
             return query.limit(count).all()
         else:
             return query.all()
-
-    def _create_query(self, select_section: list, attributes_filters: dict):
-        query = self.db.session.query()
-
-        for select_field in select_section:
-            query = query.add_columns(select_field)
-
-        for attribute, value in attributes_filters.items():
-            query = query.filter(attribute == value)
-
-        return query
