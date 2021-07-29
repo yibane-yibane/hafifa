@@ -71,5 +71,10 @@ class AzureBlobContainerHandler:
         Logger.logger.info(f'Finish to download file to: {local_path}')
 
     async def get_binary_blob_context(self, os_path):
+        """
+        Get the blob context from azure.
+        :param os_path: Blob path in os.
+        :return: Blob context.
+        """
         blob = await self.blob_container_client_async.get_blob_client(blob=os_path).download_blob()
         return await blob.readall()
