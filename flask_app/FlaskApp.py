@@ -50,7 +50,7 @@ class FlaskAppHandler(metaclass=Singleton):
 
             Logger.logger.info(f"Start downloading frames to local path: {local_path_to_save_frames}")
             for index, path in enumerate(frames_os_path):
-                frame_local_path = os.path.join(local_path_to_save_frames, f"frame{index+1}")
+                frame_local_path = os.path.join(local_path_to_save_frames, f"frame{index}.png")
                 await self.azure_container_handler.save_file_to_local_path(path, frame_local_path)
 
             Logger.logger.info(f"Finish downloading frames to local path: {local_path_to_save_frames}")
@@ -59,7 +59,7 @@ class FlaskAppHandler(metaclass=Singleton):
 
     async def download_video(self, video_id):
         video_path = DataModelTransactions.get_video_path_by_id(video_id)
-        
+
         Logger.logger.info(f'Start to download video id: {video_path}')
         video = await self.azure_container_handler.get_binary_blob_context(video_path)
         Logger.logger.info(f'Finish to download video id: {video_path}')
